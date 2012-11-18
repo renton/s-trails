@@ -1,6 +1,7 @@
 from human import *
 from items import *
 from ship_entity import *
+from name_reader import *
 
 from rooms.silo import *
 from rooms.livingquarters import *
@@ -59,9 +60,10 @@ class Ship:
         self.silos = {}
         self.daily_logs = {}
         self.is_game_over = False
+        self.name_reader = NameReader()
 
         for i in range(Ship.INIT_POPULATION_SIZE):
-            new_human = Human()
+            new_human = Human(self)
             self.humans[new_human.id]=new_human
         for i in range(Ship.INIT_NUM_INTERNAL_COMPONENTS):
             new_component = ShipComponent()

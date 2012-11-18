@@ -1,11 +1,12 @@
 import uuid
-from random import randint
+from random import randint,choice
 
 class Human:
-    def __init__(self,father=None,mother=None,day=None):
+    def __init__(self,ship=None,father=None,mother=None,day=None):
         self.id = uuid.uuid1()
         self.lq = None
         self.job = None
+        self.ship = ship
         self.hp = 100
         self.criminal_day_sentence = 0
 
@@ -35,8 +36,10 @@ class Human:
             "imm":randint(0,100),
         }
 
-        self.first_name = "John"
-        self.last_name = "Smith"
+        self.sex = choice(['m','f'])
+
+        self.first_name = self.ship.name_reader.get_random_name(self.sex)
+        self.last_name = self.ship.name_reader.get_random_name('l')
         self.age = randint(0,80)
     
     def _init_birth_stats(self,father,mother,day):
@@ -79,6 +82,5 @@ class Human:
     def meets_requirements(self,requirements):
         for k,v in requirements.items():
             if self.stats[k] < v:
-                print str(self.id)+" "+str(k)+" has "+str(self.stats[k])+" needs "+str(v)
                 return False
         return True
