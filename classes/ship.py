@@ -84,7 +84,8 @@ class Ship:
                     self.silos[new_silo.id]=new_silo
 
         self.add_items(Ship.INIT_ITEMS)
-    
+
+        self.find_jobs_for_unemployed()
         self.find_homes_for_homeless()
 
     # =============== DAILY ITERATION =========================
@@ -110,7 +111,7 @@ class Ship:
     
         # step homefinder
 
-        self.find_jobs_for_unemployed()
+
         #self.print_stats_silos()
         #self.print_stats_stores()
         self.print_overview_stats()

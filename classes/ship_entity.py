@@ -36,7 +36,38 @@ class ShipRoom(ShipEntity):
         #self.ship._add_log(1,str(human.first_name)+" "+str(human.last_name)+" took a job as a <"+str(job)+"> at <"+str(self.name)+">")
 
     def has_manager(self):
-        return len(self.jobs[self.manager_label].employees) == 1
+        return len(self.jobs[self.manager_label]['employees']) == 1
+
+    def get_average_employee_stats(self):
+
+        stats = ['int','str','agi','cha','emp','cry','eth','loy','imm']
+        data = {}
+
+        for stat in stats:
+            data[stat] = {"tot":0,"avg":0,"low":9999,"high":0}
+ 
+        employees = self.get_all_employees()
+
+        if employees:
+            for employee in employees:
+                for k,v in employee.stats.items():
+                    data[k]["tot"]+=v
+                    if data[k]["low"] > v:
+                        data[k]["low"] = v
+                    if data[k]["high"] < v:
+                        data[k]["high"] = v
+
+            for stat in data:
+                data[stat]["avg"] = (data[stat]["tot"]/len(employees))
+
+        return data
+
+    def get_all_employees(self,include_mgr=False):
+        employees = []
+        for k,v in self.jobs.items():
+            for k_employee,v_employee in v['employees'].items():
+                employees.append(v_employee)
+        return employees
 
 #can live in livingquarters,prisons,hospitals,barracks
 class ShipLivableRoom(ShipRoom):

@@ -3,7 +3,7 @@ from random import randint
 
 class Room_Farm(ShipRoom):
 
-    INIT_AVG_DAYS_TILL_HARVEST = 10
+    INIT_AVG_DAYS_TILL_HARVEST = 30
     INIT_AVG_YIELD_AMOUNT = 100
     INIT_ITEM_YIELD_TYPES = ['grain','fruit+veg','protein']
     INIT_DEFAULT_ITEM = 'grain'
@@ -75,11 +75,15 @@ class Room_Farm(ShipRoom):
             },
         }
 
-    def _calc_days_till_harvest(self):
+    def _plant_farm(self):
         #TODO - yield based on employees
         #TODO - time based on employees
         #TODO - cannot start without enough employees
         #TODO - items dont remove or have a % of removing
+
+        if not self.has_manager():
+            self.ship._add_log(2,str(self.name)+" needs manager to process farm.")
+            return False
 
         unmet_criteria = self.ship.get_unmet_criteria(Room_Farm.INIT_DEFAULT_PLANT_REQ_ITEMS)
 
@@ -89,12 +93,13 @@ class Room_Farm(ShipRoom):
         else:
             self.ship.remove_items(Room_Farm.INIT_DEFAULT_PLANT_REQ_ITEMS)
             self.ship._add_log(1,str(self.item_type)+" farm planted.")
-            self.days_till_harvest = Room_Farm.INIT_AVG_DAYS_TILL_HARVEST
+            self.days_till_harvest = self._calc_days_till_harvest()
             self.ready_to_plant = False
 
     def daily_step(self,ship):
+        self.get_average_employee_stats()
         if self.ready_to_plant == True:
-            self._calc_days_till_harvest()
+            self._plant_farm()
         else:
             if self.days_till_harvest <= 0:
                 self._harvest()
@@ -111,6 +116,10 @@ class Room_Farm(ShipRoom):
     
     def _harvest(self):
 
+        if not self.has_manager():
+            self.ship._add_log(2,str(self.name)+" needs manager to harvest farm.")
+            return False
+
         # % chance at affecting yield
         #TODO - yield based on employees
         #TODO - cannot start without employees
@@ -124,3 +133,13 @@ class Room_Farm(ShipRoom):
             self.ship._add_log(1,"harvest time")
             self.ship.add_items({self.item_type:self.yield_amount})
             self.ready_to_plant = True
+
+    def _calc_days_till_harvest(self):
+
+        stats = self.get_average_employee_stats()
+        days = Room_Farm.INIT_AVG_DAYS_TILL_HARVEST
+        days -= stats['eth']['tot'] / 200
+        days -= stats['str']['tot'] / 300
+        days -= stats['agi']['tot'] / 300
+        days -= (stats['eth']['avg'] / 10)*2
+        return days
