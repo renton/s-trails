@@ -1,3 +1,5 @@
+#TODO - usage probability - chance that it is removed when used
+
 ITEM = {
 
     "water":{

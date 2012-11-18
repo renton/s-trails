@@ -2,9 +2,16 @@ from human import *
 from items import *
 from ship_entity import *
 
+from rooms.silo import *
+from rooms.livingquarters import *
+from rooms.farm import *
+from rooms.storage import *
+
+from copy import deepcopy
+
 class Ship:
 
-    INIT_POPULATION_SIZE = 200
+    INIT_POPULATION_SIZE = 300
     INIT_NUM_INTERNAL_COMPONENTS = 0
     INIT_NUM_EXTERNAL_COMPONENTS = 0
 
@@ -19,7 +26,7 @@ class Ship:
         },
         {
             "obj":Room_Farm,
-            "num":20
+            "num":2
         },
 
     ]
@@ -101,11 +108,13 @@ class Ship:
     
         # step homefinder
 
-        self.print_stats_silos()
-        self.print_stats_stores()
+        self.find_jobs_for_unemployed()
+        #self.print_stats_silos()
+        #self.print_stats_stores()
         self.print_overview_stats()
         self.print_daily_logs()
-        self.print_inventory()
+        #self.print_inventory()
+        #self.print_humans()
 
         return self.is_game_over
 
@@ -147,12 +156,13 @@ class Ship:
 
     # =================== INVENTORY SYSTEM ================================
 
-    def add_items(self,item_amount_array):
+    def add_items(self,item_amount_array_input):
         #TODO - filling strats - fill complete, spread
         #TODO - if in item list
 
+        item_amount_array = deepcopy(item_amount_array_input)
+
         stores = self.get_all_storages(only_has_room=True)
-        silos = {}
 
         init_amounts = {}
         for k,v in item_amount_array.items():
@@ -169,16 +179,23 @@ class Ship:
                 if v_item <= 0:
                     break
                 (add_status,k_item,v_item) = v_container.add_items(k_item,v_item)
+            item_amount_array[k_item]=v_item
 
 
+        no_waste = True
         for k_item,v_item in item_amount_array.items():
             if v_item>0:
                 self._add_log(1,"Produced Waste - Couldn't Store: "+str(v_item)+" "+str(k_item))
+                no_waste = False
             else:
                 self._add_log(1,"Added "+str(init_amounts[k_item])+" "+str(k_item))
 
-    def remove_items(self,item_amount_array):
+        return (no_waste,item_amount_array)
+
+    def remove_items(self,item_amount_array_input):
         #TODO - filling strats - fill complete, spread
+
+        item_amount_array = deepcopy(item_amount_array_input)
 
         #TODO - hard copy?
         init_amounts = {}
@@ -204,11 +221,26 @@ class Ship:
         is_success = True
         for k_item,v_item in item_amount_array.items():
             if v_item>0:
+                self._add_log(1,"wtf: "+str(v_item)+" "+str(k_item))
                 #TODO - should there be a message or will we let client caller handle response?
                 is_success = False
             else:
                 self._add_log(1,"Removed: "+str(init_amounts[k_item])+" "+str(k_item))
         return (is_success,item_amount_array)
+
+    def get_unmet_criteria(self,item_array_input):
+        inventory = self.get_inventory()
+        item_array = deepcopy(item_array_input)
+
+        for k,v in item_array.items():
+            if k in inventory:
+                total = inventory[k]
+                if total >= v:
+                    del item_array[k]
+                else:
+                    item_array[k] -= total
+
+        return item_array
 
     def get_total_items(self,item_type):
     #TODO refactor - ugggglllly
@@ -305,8 +337,7 @@ class Ship:
 
 
     # ============== LOGGING SYSTEM ===============
-    # TODO - rather than have log/warning, just have one system
-    # with multiple levels of importance
+    # TODO - differnet types for topics (farming,housing,inventory,population,etc.)
 
     def _add_log(self,level,message):
         if level not in self.daily_logs:
@@ -315,6 +346,39 @@ class Ship:
 
     def _clear_logs(self):
         self.daily_logs = {}
+
+    # ============= WORKFORCE =========================
+
+    def find_jobs_for_unemployed(self):
+        #TODO - smart placment system
+        unemployed = []
+        for k,v in self.humans.items():
+            if v.job is None:
+                unemployed.append(v)
+
+        for k_room_id,v_room in self.rooms.items():
+            for k_job_title,v_job in v_room.get_available_jobs().items():
+                for i in range(v_job):
+                    for human in unemployed:
+                        if human.meets_requirements(v_room.jobs[k_job_title]['min_stats']) and human.job is None:
+                            v_room.employ_human(human,k_job_title)
+                            unemployed.remove(human)
+                            break
+
+        self._add_log(2,str(len(unemployed))+" civilians could not find work.")
+        self._add_log(2,"Unfilled jobs: "+str(self.get_available_jobs_simple()))
+        
+
+    #TODO maybe job db like in items for same jobs / mult rooms
+    def get_available_jobs_simple(self):
+
+        jobs = {}
+        for k_room_id,v_room in self.rooms.items():
+            for k_job_title,v_job in v_room.get_available_jobs().items():
+                if k_job_title not in jobs:
+                    jobs[k_job_title]=0
+                jobs[k_job_title]+=v_job
+        return jobs
 
     # ============= HOUSING SYSTEM  ===================
 
@@ -355,7 +419,6 @@ class Ship:
                         #WARNING - no vacancies, still homeless
                         break
                     continue
-
 
     # =============== PRINT DEBUGGING =======================
 
@@ -403,3 +466,7 @@ class Ship:
 
     def print_inventory(self):
         print self.get_inventory()
+
+    def print_humans(self):
+        for k,v in self.humans.items():
+            v.print_stats()
