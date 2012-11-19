@@ -131,7 +131,7 @@ class Ship:
         self.print_inventory()
         self.print_bars()
         #self.print_humans()
-
+        
         return self.is_game_over
 
     #TODO - all daily req in one function ?

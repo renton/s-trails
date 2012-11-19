@@ -5,27 +5,27 @@ class NameReader:
 
         self.files = {
             "m": {
-                "file":(open('data/male_first_names.txt','r')),
+                "file":(open('data/male_first_names.txt','r+b')),
                 "names":None
             },
             "f": {
-                "file":(open('data/female_first_names.txt','r')),
+                "file":(open('data/female_first_names.txt','r+b')),
                 "names":None
             },
             "l": {
-                "file":(open('data/last_names.txt','r')),
+                "file":(open('data/last_names.txt','r+b')),
                 "names":None
             },
             "animal": {
-                "file":(open('data/animals.txt','r')),
+                "file":(open('data/animals.txt','r+b')),
                 "names":None
             },
             "object": {
-                "file":(open('data/objects.txt','r')),
+                "file":(open('data/objects.txt','r+b')),
                 "names":None
             },
             "verb": {
-                "file":(open('data/verbs.txt','r')),
+                "file":(open('data/verbs.txt','r+b')),
                 "names":None
             }
         }
@@ -35,3 +35,15 @@ class NameReader:
 
     def get_random_name(self,name_type):
         return random.choice(self.files[name_type]['names'])
+       
+    def clean_files(self):
+        for k,v in self.files.items():
+           fileList= v['names']
+           fileList.sort()
+           outFile = v['file']
+           outFile.seek(0,0)
+           for item in fileList:
+               outFile.write(item + '\r\n')
+           outFile.close()
+
+
