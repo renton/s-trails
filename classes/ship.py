@@ -7,6 +7,8 @@ from rooms.silo import *
 from rooms.livingquarters import *
 from rooms.farm import *
 from rooms.storage import *
+from rooms.bar import *
+from rooms.distillery import *
 
 from copy import deepcopy
 
@@ -29,6 +31,14 @@ class Ship:
             "obj":Room_Farm,
             "num":2
         },
+          {
+            "obj":Room_Bar,
+            "num":5
+        },
+        {
+            "obj":Room_Distillery,
+            "num":2
+        },
 
     ]
 
@@ -43,6 +53,7 @@ class Ship:
         "fuel":12233,
         "oxygen":93820,
         "grain":2000,
+        "alcohol":100,
         "protein":1000,
         "fruit+veg":2000,
         "farming supplies":1000,
@@ -111,12 +122,14 @@ class Ship:
     
         # step homefinder
 
-
+        #**'archive' parameter to print a physical log as well as running the terminal output (Not implemented on all prints)**
+        
         #self.print_stats_silos()
         #self.print_stats_stores()
         self.print_overview_stats()
         self.print_daily_logs()
-        #self.print_inventory()
+        self.print_inventory()
+        self.print_bars()
         #self.print_humans()
 
         return self.is_game_over
@@ -432,44 +445,130 @@ class Ship:
             output.append(len(v.occupants))
         print output
 
-    def print_stats_silos(self):
+    def print_stats_silos(self,logs=0):
         print "======= SILOS ====="
-        for k,v in self.silos.items():
-            print "("+str(v.item_type)+") "+str(v.amount)
+        if logs == 0:
+            for k,v in self.silos.items():
+                print "("+str(v.item_type)+") "+str(v.amount)
+            
+        elif logs == 'archive':
+           outFile = open('Archived Log.txt', 'a+')
+	  #outFile.write("\n==Day: {0} Year: {1}==".format(str(s.day),str(s.year))) NOTE: Needs a timestamp of some sort
+           outFile.write("\n\n==Silo Statistics==")
+           for k,v in self.silos.items():
+                print "("+str(v.item_type)+") "+str(v.amount)
+                outFile.write("\n**{0}**{1}**".format(str(v.item_type),str(v.amount)))
+           outFile.close()
+        else:
+            print "*Invalid Input in 'print_stats_silos' -> 'archive' to save file*"
 
-    def print_stats_stores(self):
+    def print_stats_stores(self,logs=0):
         print "======== STORES ======"
         stores = self.get_all_storages()
-        for k,v in stores.items():
-            print v.item_store
+        if logs == 0:
+            for k,v in stores.items():
+                print v.item_store
+           
+        elif logs == 'archive':
+            outFile = open('Archived Log.txt', 'a+')
+           #outFile.write("\n==Day: {0} Year: {1}==".format(str(s.day),str(s.year))) NOTE: Needs a timestamp of some sort
+            outFile.write("\n\n==Stores Statistics==")
+            for k,v in stores.items():
+                print v.item_store
+                outFile.write("\n{0}".format(str(v.item_store)))
+            outFile.close()
+        else:
+            print "*Invalid Input in 'print_stats_stores' -> 'archive' to save file*"
 
-    def print_total_resources(self):
+    def print_total_resources(self,logs=0):
         #TODO - use core value from item table
         items = ['oxygen','water','fuel','protein','grain','fruit+veg']
-
-        for item in items:
+        if logs == 0:
+         for item in items:
             print str(item)+": "+str(self.get_total_items(item))
+        elif logs == 'archive':
+           outFile = open('Archived Log.txt', 'a+')
+          #outFile.write("\n==Day: {0} Year: {1}==".format(str(s.day),str(s.year))) NOTE: Needs a timestamp of some sort
+           outFile.write("\n\n==Total Resources==")
+           for item in items:
+             print str(item)+": "+str(self.get_total_items(item))
+             outFile.write("\n{0}{1}".format(str(item),str(self.get_total_items(item))))
+           outFile.close()
+        else:
+            print "*Invalid Input in 'print_total_resources' -> 'archive' to save file*"
 
-    def print_overview_stats(self):
+    def print_overview_stats(self, logs=0):
+
+      if logs == 0:
         print "\n=== Overview ==="
         print "population: "+str(len(self.humans))
         print "rooms: "+str(len(self.rooms))
         print "silos: "+str(len(self.silos))
         self.print_total_resources()
+      elif logs == 'archive':
+        print "\n=== Overview ==="
+        print "population: "+str(len(self.humans))
+        print "rooms: "+str(len(self.rooms))
+        print "silos: "+str(len(self.silos))
+        self.print_total_resources()
+        outFile = open('Archived Log.txt', 'a+')
+       #outFile.write("\n==Day: {0} Year: {1}==".format(str(s.day),str(s.year))) NOTE: Needs a timestamp of some sort
+        outFile.write("\n\n==Overview==")
+        outFile.write("\n**Population: {0}**\n**Rooms: {1}**\n**Silos: {2}**".format(str(len(self.humans)),str(len(self.rooms)),str(len(self.silos))))
+        outFile.close()
 
-    def print_daily_logs(self):
-        print "\n=== Daily Log ==="
-        if not self.daily_logs:
-            print "(None)"
+      else:
+            print "*Invalid Input in 'print_overview_stats' -> 'archive' to save file*"
+
+    def print_daily_logs(self, logs=0):
+
+        if logs == 0:
+          print "\n=== Daily Log ==="
+          if not self.daily_logs:
+                print "(None)"
+          else:
+                for k,v in self.daily_logs.items():
+                    print "\n===== LEVEL "+str(k)+" ======"
+                    for log in v:
+                        print str(log)
+        elif logs == 'archive':            
+            outFile = open('Archived Log.txt', 'a+')
+            print "\n=== Daily Log ==="
+            if not self.daily_logs:
+                print "(None)"
+            else:
+                for k,v in self.daily_logs.items():
+                    print "\n===== LEVEL "+str(k)+" ======"
+                   #outFile.write("\n==Day: {0} Year: {1}==".format(str(s.day),str(s.year))) NOTE: Needs a timestamp of some sort
+                    outFile.write("\n\n==Daily Log==")
+                    for log in v:
+                        print str(log)
+                        outFile.write("\n**{0}".format(str(log)))
+                    outFile.close()
         else:
-            for k,v in self.daily_logs.items():
-                print "\n===== LEVEL "+str(k)+" ======"
-                for log in v:
-                    print str(log)
+             print "*Invalid Input in 'print_daily_logs' -> 'archive' to save file*"
 
-    def print_inventory(self):
-        print self.get_inventory()
+    def print_inventory(self, logs=0):
+        if logs == 0:
+            print self.get_inventory()
+        elif logs == 'archive':
+            print self.get_inventory()
+            outFile = open('Archived Log.txt', 'a+')
+           #outFile.write("\n==Day: {0} Year: {1}==".format(str(s.day),str(s.year))) NOTE: Needs a timestamp of some sort
+            outFile.write("\n\n==Inventory==")
+            outFile.write("\n**{0}".format(str(self.get_inventory())))
+            outFile.close()
+        else:
+            print "*Invalid Input in 'print_inventory' -> 'archive' to save file*"
 
     def print_humans(self):
-        for k,v in self.humans.items():
-            v.print_stats()
+        
+       for k,v in self.humans.items():
+         v.print_stats()
+
+    def print_bars(self):
+     
+       for k,v in self.rooms.items():
+        print v.name
+        
+            

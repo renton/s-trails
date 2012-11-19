@@ -15,6 +15,18 @@ class NameReader:
             "l": {
                 "file":(open('data/last_names.txt','r')),
                 "names":None
+            },
+            "animal": {
+                "file":(open('data/animals.txt','r')),
+                "names":None
+            },
+            "object": {
+                "file":(open('data/objects.txt','r')),
+                "names":None
+            },
+            "verb": {
+                "file":(open('data/verbs.txt','r')),
+                "names":None
             }
         }
 
