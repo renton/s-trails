@@ -51,3 +51,8 @@ Defenders
 Way
 Movement
 Spear
+Siege
+Children
+Orphans
+Fury
+Grace

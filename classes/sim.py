@@ -29,6 +29,7 @@ class Sim:
                 'Travellers',
                 'Merchants',
                 'United',
+                'Congress',
             ],
             'miner':[
                 'Miners',
@@ -55,6 +56,7 @@ class Sim:
                 'Riflemen',
                 'Dragoons',
                 'Generals',
+                'Warriors',
             ],
             'scientist':[
                 'Students',
@@ -89,6 +91,7 @@ class Sim:
                 'Lifers',
                 'Prisoners',
                 'Slaves',
+                'Survivors'
             ],
         }
         
@@ -109,6 +112,8 @@ class Sim:
     def main_loop(self):
         while(1):
             self.step_day()
+            for faction in self.factions:
+                print faction['name']
             break
 
     def _generate_random_factions(self):
@@ -168,6 +173,7 @@ class Sim:
             name+" "+word("animal")+"s",
             name+" "+word("adjective")+" "+word("animal")+"s",
             word("adjective")+" "+word("animal")+" "+group,
+            word("noun")+" of the "+word("adjective")
         ]
 
         return choice(patterns)

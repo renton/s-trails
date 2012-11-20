@@ -15,3 +15,7 @@ Swallow
 Tiger
 Weasel
 Wolf
+Hyena
+Shark
+Panther
+Leopard
