@@ -15,7 +15,23 @@ class NameReader:
             "l": {
                 "file":(open('data/last_names.txt','r')),
                 "names":None
-            }
+            },
+            "lq": {
+                "file":(open('data/lq_names.txt','r')),
+                "names":None
+            },
+            "adjective": {
+                "file":(open('data/adjectives.txt','r')),
+                "names":None
+            },
+            "noun": {
+                "file":(open('data/nouns.txt','r')),
+                "names":None
+            },
+            "title": {
+                "file":(open('data/titles.txt','r')),
+                "names":None
+            },
         }
 
         for k,v in self.files.items():

@@ -2,9 +2,11 @@ from classes.ship_entity import *
 from random import randint
 
 class Room_Farm(ShipRoom):
+    #TODO - keep track of days active and total yield
 
     INIT_AVG_DAYS_TILL_HARVEST = 30
     INIT_AVG_YIELD_AMOUNT = 100
+    INIT_MIN_NUM_EMPLOYEES = 5
     INIT_ITEM_YIELD_TYPES = ['grain','fruit+veg','protein']
     INIT_DEFAULT_ITEM = 'grain'
 
@@ -85,6 +87,10 @@ class Room_Farm(ShipRoom):
             self.ship._add_log(2,str(self.name)+" needs manager to process farm.")
             return False
 
+        if len(self.get_all_employees()) < Room_Farm.INIT_MIN_NUM_EMPLOYEES:
+            self.ship._add_log(2,str(self.name)+" needs at least "+str(Room_Farm.INIT_MIN_NUM_EMPLOYEES)+" employees to process farm.")
+            return False
+
         unmet_criteria = self.ship.get_unmet_criteria(Room_Farm.INIT_DEFAULT_PLANT_REQ_ITEMS)
 
         if unmet_criteria:
@@ -94,6 +100,7 @@ class Room_Farm(ShipRoom):
             self.ship.remove_items(Room_Farm.INIT_DEFAULT_PLANT_REQ_ITEMS)
             self.ship._add_log(1,str(self.item_type)+" farm planted.")
             self.days_till_harvest = self._calc_days_till_harvest()
+            self.yield_amount = Room_Farm.INIT_AVG_YIELD_AMOUNT
             self.ready_to_plant = False
 
     def daily_step(self,ship):
@@ -111,6 +118,7 @@ class Room_Farm(ShipRoom):
                     self.ship._add_log(2,"Cannot grow farm. Requirments not met: "+str(unmet_criteria))
                     return False
                 else:
+                    self._inc_yield()
                     self.ship.remove_items(Room_Farm.INIT_DEFAULT_STEP_REQ_ITEMS)
                     self.days_till_harvest -=1
     
@@ -118,6 +126,10 @@ class Room_Farm(ShipRoom):
 
         if not self.has_manager():
             self.ship._add_log(2,str(self.name)+" needs manager to harvest farm.")
+            return False
+
+        if len(self.get_all_employees()) < Room_Farm.INIT_MIN_NUM_EMPLOYEES:
+            self.ship._add_log(2,str(self.name)+" needs at least "+str(Room_Farm.INIT_MIN_NUM_EMPLOYEES)+" employees to harvest farm.")
             return False
 
         # % chance at affecting yield
@@ -143,3 +155,7 @@ class Room_Farm(ShipRoom):
         days -= stats['agi']['tot'] / 300
         days -= (stats['eth']['avg'] / 10)*2
         return days
+
+    def _inc_yield(self):
+        stats = self.get_average_employee_stats()
+        self.yield_amount += randint(0,stats['eth']['tot']/200)

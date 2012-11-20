@@ -3,7 +3,7 @@ from random import randint
 
 class Room_Storage(ShipRoom):
 
-    INIT_CAPACITY = 1000
+    INIT_CAPACITY = 10000
 
     def __init__(self,ship):
         ShipRoom.__init__(self,ship)

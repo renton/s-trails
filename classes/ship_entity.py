@@ -27,9 +27,6 @@ class ShipRoom(ShipEntity):
                 output[k] = v['max_employees'] - len(v['employees'])
         return output
 
-    def assign_manager(self):
-        pass
-
     def employ_human(self,human,job):
         self.jobs[job]['employees'][human.id] = human
         human.job = {"room":self,"job":job}
@@ -62,7 +59,7 @@ class ShipRoom(ShipEntity):
 
         return data
 
-    def get_all_employees(self,include_mgr=False):
+    def get_all_employees(self):
         employees = []
         for k,v in self.jobs.items():
             for k_employee,v_employee in v['employees'].items():

@@ -12,14 +12,14 @@ from copy import deepcopy
 
 class Ship:
 
-    INIT_POPULATION_SIZE = 300
+    INIT_POPULATION_SIZE = 3000
     INIT_NUM_INTERNAL_COMPONENTS = 0
     INIT_NUM_EXTERNAL_COMPONENTS = 0
 
     INIT_ROOMS = [
         {
             "obj":Room_Storage,
-            "num":20
+            "num":30
         },
         {
             "obj":Room_LivingQuarters,
@@ -27,7 +27,7 @@ class Ship:
         },
         {
             "obj":Room_Farm,
-            "num":2
+            "num":20
         },
 
     ]
@@ -42,9 +42,9 @@ class Ship:
         "water":30230,
         "fuel":12233,
         "oxygen":93820,
-        "grain":2000,
-        "protein":1000,
-        "fruit+veg":2000,
+        "grain":20000,
+        "protein":10000,
+        "fruit+veg":20000,
         "farming supplies":1000,
         "farming tools":100,
         "growth cells":1000,
@@ -52,7 +52,7 @@ class Ship:
         "oxygen mask":100
     }
 
-    def __init__(self):
+    def __init__(self,name_reader):
         self.humans = {}
         self.rooms = {}
         self.internal_components = {}
@@ -60,8 +60,9 @@ class Ship:
         self.silos = {}
         self.daily_logs = {}
         self.is_game_over = False
-        self.name_reader = NameReader()
+        self.name_reader = name_reader
 
+        print "Creating population..."
         for i in range(Ship.INIT_POPULATION_SIZE):
             new_human = Human(self)
             self.humans[new_human.id]=new_human
@@ -72,21 +73,27 @@ class Ship:
             new_component = ShipComponent()
             self.external_components[new_component.id]=new_component
 
+        print "Creating rooms..."
         for v in Ship.INIT_ROOMS:
             for i in range(v['num']):
                 new_room = v['obj'](self)
                 self.rooms[new_room.id]=new_room
 
+        print "Creating silos..."
         for k,v in Ship.INIT_SILOS.items():
             for i in range(v):
                 if ITEM[k]['type'] == "resource":
                     new_silo = ShipSilo(self,k)
                     self.silos[new_silo.id]=new_silo
 
+        print "Adding initial items..."
         self.add_items(Ship.INIT_ITEMS)
 
-        self.find_jobs_for_unemployed()
+        print "Finding homes for homeless..."
         self.find_homes_for_homeless()
+
+        print "Finding jobs for homeless..."
+        self.find_jobs_for_unemployed()
 
     # =============== DAILY ITERATION =========================
 
@@ -112,12 +119,14 @@ class Ship:
         # step homefinder
 
 
+        #self.print_stats_living_quarters()
         #self.print_stats_silos()
         #self.print_stats_stores()
         self.print_overview_stats()
         self.print_daily_logs()
         #self.print_inventory()
         #self.print_humans()
+        #self.print_rooms()
 
         return self.is_game_over
 
@@ -407,8 +416,8 @@ class Ship:
 
         counter = 0
         for human in homeless:
+            iters = len(lq_keys)
             while(1):
-                iters = len(lq_keys)
                 if len(lq_keys) <= (counter):
                     counter = 0
 
@@ -425,11 +434,15 @@ class Ship:
 
     # =============== PRINT DEBUGGING =======================
 
-    def print_stats_living_quarter(self):
+    def print_rooms(self):
+        for k,v in self.rooms.items():
+            print v.name
+
+    def print_stats_living_quarters(self):
         output = []
-        lq = self._get_all_living_quarters()
+        lq = self.get_all_living_quarters()
         for k,v in lq.items():
-            output.append(len(v.occupants))
+            output.append({v.name:len(v.occupants)})
         print output
 
     def print_stats_silos(self):
