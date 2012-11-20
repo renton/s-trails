@@ -42,7 +42,7 @@ class ShipRoom(ShipEntity):
 
     def get_average_employee_stats(self):
 
-        stats = ['int','str','agi','cha','emp','cry','eth','loy','imm']
+        stats = ['int','str','agi','cha','emp','cry','eth','loy','imm','hap']
         data = {}
 
         for stat in stats:
@@ -70,6 +70,14 @@ class ShipRoom(ShipEntity):
             for k_employee,v_employee in v['employees'].items():
                 employees.append(v_employee)
         return employees
+    
+    def step_daily(self):
+        # make sure all employees are still fit to work here, or else fire them
+        employees = self.get_all_employees()
+
+        for employee in employees:
+            if not employee.meets_requirements(self.jobs[employee.job['job']]['min_stats']):
+                self.fire_human(employee,employee.job['job'])
 
 #can live in livingquarters,prisons,hospitals,barracks
 class ShipLivableRoom(ShipRoom):
@@ -80,14 +88,22 @@ class ShipLivableRoom(ShipRoom):
         ShipRoom.__init__(self,ship)
         self.type = "default_livable_room"
         self.capacity = ShipLivableRoom.DEFAULT_CAPACITY
+        self.cleanliness = 100
+        self.occupants = {}
 
     def is_vacant(self):
         return len(self.occupants) < self.capacity
 
     def add_occupant(self,human):
         if len(self.occupants) < self.capacity:
+
+            # remove from existing home
+            if human.lq:
+                human.lq.remove_occupant(human)
+
             self.occupants[human.id] = human
             human.change_lq(self)
+            self.ship._add_log(3,str(human.first_name)+" "+str(human.last_name)+" now lives at <"+str(self.name)+">")
             return True
         return False
 
@@ -98,3 +114,6 @@ class ShipLivableRoom(ShipRoom):
             human.change_lq(None)
             return True
         return False
+
+    def step_daily(self):
+        ShipRoom.step_daily(self)

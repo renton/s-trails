@@ -10,7 +10,41 @@ class Room_LivingQuarters(ShipLivableRoom):
         self.type = "living_quarters"
         self.name = str(ship.name_reader.get_random_name("lq"))+"-"+str(randint(0,999))
         self.capacity = Room_LivingQuarters.INIT_CAPACITY
-        self.occupants = {}
 
-    def daily_step(self,ship):
-        pass
+        self.manager_label = "Superindendent"
+        self.jobs = {
+            
+            "Superindendent": {
+                "employees":{},
+                "max_employees":1,
+                "desired_stats":[],
+                "min_stats":{
+                    "eth":20,
+                    "int":20,
+                    "cha":20
+                },
+                "req_awards":[]
+            },
+            "Handyman": {
+                "employees":{},
+                "max_employees":5,
+                "desired_stats":[],
+                "min_stats":{
+                    "int":10,
+                    "eth":10,
+                },
+                "req_awards":[]
+            },
+            "Custodian": {
+                "employees":{},
+                "max_employees":5,
+                "desired_stats":[],
+                "min_stats":{
+                    "eth":10,
+                },
+                "req_awards":[]
+            },
+        }
+
+    def daily_step(self):
+        ShipLivableRoom.daily_step(self)

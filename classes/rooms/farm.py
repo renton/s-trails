@@ -103,7 +103,7 @@ class Room_Farm(ShipRoom):
             self.yield_amount = Room_Farm.INIT_AVG_YIELD_AMOUNT
             self.ready_to_plant = False
 
-    def daily_step(self,ship):
+    def step_daily(self):
         self.get_average_employee_stats()
         if self.ready_to_plant == True:
             self._plant_farm()
@@ -116,11 +116,13 @@ class Room_Farm(ShipRoom):
 
                 if unmet_criteria:
                     self.ship._add_log(2,"Cannot grow farm. Requirments not met: "+str(unmet_criteria))
+                    self._dec_yield()
                     return False
                 else:
                     self._inc_yield()
                     self.ship.remove_items(Room_Farm.INIT_DEFAULT_STEP_REQ_ITEMS)
                     self.days_till_harvest -=1
+        ShipRoom.step_daily(self)
     
     def _harvest(self):
 
@@ -138,7 +140,7 @@ class Room_Farm(ShipRoom):
         unmet_criteria = self.ship.get_unmet_criteria(Room_Farm.INIT_DEFAULT_HARVEST_REQ_ITEMS) 
 
         if unmet_criteria:
-            self.ship._add_warning(2,"Cannot harvest. Requirements not met: "+str(unmet_criteria))
+            self.ship._add_log(2,"Cannot harvest. Requirements not met: "+str(unmet_criteria))
             return False
         else:
             self.ship.remove_items(Room_Farm.INIT_DEFAULT_HARVEST_REQ_ITEMS)
@@ -159,3 +161,8 @@ class Room_Farm(ShipRoom):
     def _inc_yield(self):
         stats = self.get_average_employee_stats()
         self.yield_amount += randint(0,stats['eth']['tot']/200)
+
+    def _dec_yield(self):
+        amount = randint(0,10)
+        if self.yield_amount >= amount: 
+            self.yield_amount -= amount

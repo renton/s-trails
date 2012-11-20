@@ -99,5 +99,5 @@ class Room_Storage(ShipRoom):
     def is_empty(self):
         return self.get_total_items() == 0
 
-    def daily_step(self,ship):
-        pass
+    def step_daily(self):
+        ShipRoom.step_daily(self)

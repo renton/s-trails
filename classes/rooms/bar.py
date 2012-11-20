@@ -63,7 +63,7 @@ class Room_Bar(ShipRoom):
     def _bar_service(self):
         pass
     
-    def daily_step(self,ship):
+    def step_daily(self):
         self.get_average_employee_stats()
         if self.open_for_business == True:
              self._bar_service()
@@ -77,6 +77,4 @@ class Room_Bar(ShipRoom):
                 return False
             else:
                 self.ship.remove_items(Room_Bar.INIT_DEFAULT_SERVICE_REQUIREMENTS)
-    
-
-
+        ShipRoom.step_daily(self)

@@ -22,6 +22,7 @@ class Human:
         self.criminal_day_sentence = 0
 
         self.old_age_immobile = False
+        self.old_age_hospitalized = False
 
         self.is_pregnant = False
         self.day_pregnant = 0
@@ -37,18 +38,18 @@ class Human:
     def _roll_stats(self):
         self.birthday = randint(1,365)
         self.stats = {
-            "int":randint(0,100),
-            "str":randint(0,100),
-            "agi":randint(0,100),
-            "cha":randint(0,100),
-            "emp":randint(0,100),
-            "cry":randint(0,100),
-            "eth":randint(0,100),
+            "int":randint(10,100),
+            "str":randint(10,100),
+            "agi":randint(10,100),
+            "cha":randint(10,100),
+            "emp":randint(10,100),
+            "cry":randint(10,100),
+            "eth":randint(10,100),
 
             "hap":randint(80,100),
 
-            "loy":randint(0,100),
-            "imm":randint(0,100),
+            "loy":randint(10,100),
+            "imm":randint(10,100),
         }
 
         self.sex = choice(['m','f'])
@@ -90,6 +91,11 @@ class Human:
             
         if self.alive:
 
+            # if you should be in a hospital, but arent - take major health hit
+            if self.should_be_hospitalized():
+                if not self.lq or self.lq.type != "hospital":
+                    self.hp -= randint(1,3)
+
             # reduce happiness if homeless (TODO- % to change loyalty)
             if self.lq is None:
                 # more empathetic people become depressed easier
@@ -117,7 +123,7 @@ class Human:
             # if you are depressed, it can lower your stats!
             if self.stats["hap"] <= Human.DEPRESSION_THRESHOLD:
                 if randint(0,self.stats["hap"]*3) == 0:
-                    self.ship._add_log(3,str(self.first_name)+" "+str(self.last_name)+" is severely depressed.")
+                    #self.ship._add_log(3,str(self.first_name)+" "+str(self.last_name)+" is severely depressed.")
                     self.dec_stat(choice(['agi','cha','cry','emp','eth']),1)
 
 
@@ -125,17 +131,24 @@ class Human:
             if self.age > Human.OLD_AGE:
 
                 # chance to decline in stats based on agility
-                health_factor = self.stats['agi']/10
+                health_factor = self.stats['agi']/2
                 if randint(0,health_factor) == 0:
-                    self.dec_stat(choice(['int','str','agi','eth']),randint(1,(self.age/10)))
+                    dec_factor = self.age/10
+                    self.dec_stat(choice(['int','str','agi','eth','imm']),randint(0,dec_factor))
 
                 # chance to lose hp in declining health
                 if randint(0,100) >= (((self.stats['agi']+self.stats['imm'])/2)+10):
                     self.hp -= randint(1,5)
 
-                    # chance to become bedridden and unable to work
-                    if randint(0,self.stats['agi']) == 0:
-                        self.set_old_age_immobile()
+                    if not self.old_age_immobile:
+                        # chance to become bedridden and unable to work
+                        if randint(0,self.stats['agi']) == 0:
+                            self.set_old_age_immobile()
+                    else:
+                        if not self.old_age_hospitalized:
+                            if randint(0,100) >= self.stats['imm'] and self.hp < Human.HEALTHY_HP:
+                                self.ship._add_log(3,str(self.first_name)+" "+str(self.last_name)+" requires hospitalization due to old age.")
+                                self.old_age_hospitalized = True
 
             # no longer alive
             if self.hp <= 0:
@@ -147,6 +160,10 @@ class Human:
         self.days_at_home +=1
 
         return self.alive
+
+    def should_be_hospitalized(self):
+        # TODO handle disease/injury hospitalization
+        return self.old_age_hospitalized
     
     def inc_stat(self,stat,amount):
         if self.stats[stat] < Human.MAX_STAT_VALUE:

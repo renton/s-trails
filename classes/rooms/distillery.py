@@ -85,7 +85,7 @@ class Room_Distillery(ShipRoom):
             self.days_till_brewed = self._calc_days_till_brewed()
             self.ready_to_plant = False
 
-    def daily_step(self,ship):
+    def step_daily(self):
         self.get_average_employee_stats()
         if self.ready_to_brew == True:
             self._brew_distillery()
@@ -102,6 +102,7 @@ class Room_Distillery(ShipRoom):
                 else:
                     self.ship.remove_items(Room_Distillery.INIT_DEFAULT_STEP_REQ_ITEMS)
                     self.days_till_brewed -=1
+        ShipRoom.step_daily(self)
     
     def _package(self):
 

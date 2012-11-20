@@ -9,6 +9,7 @@ from rooms.farm import *
 from rooms.storage import *
 from rooms.bar import *
 from rooms.distillery import *
+from rooms.hospital import *
 
 from copy import deepcopy
 
@@ -38,6 +39,10 @@ class Ship:
         {
             "obj":Room_Distillery,
             "num":0
+        },
+        {
+            "obj":Room_Hospital,
+            "num":5
         },
 
     ]
@@ -123,8 +128,9 @@ class Ship:
 
         # step rooms+employees
         for k,v in self.rooms.items():
-            v.daily_step(self)
+            v.step_daily()
 
+        self.find_homes_for_hospitalized()
         self.find_homes_for_homeless()
         self.find_jobs_for_unemployed()
 
@@ -380,7 +386,7 @@ class Ship:
         #TODO - smart placment system
         unemployed = []
         for k,v in self.humans.items():
-            if v.job is None and not v.old_age_immobile:
+            if v.job is None and not v.old_age_immobile and not v.should_be_hospitalized():
                 unemployed.append(v)
 
         for k_room_id,v_room in self.rooms.items():
@@ -420,6 +426,17 @@ class Ship:
                     lq[v.id] = v
         return lq
 
+    def get_all_hospitals(self,only_vacant=False):
+        lq = {}
+        for k,v in self.rooms.items():
+            if v.type == "hospital":
+                if only_vacant:
+                    if v.is_vacant:
+                        lq[v.id] = v
+                else:
+                    lq[v.id] = v
+        return lq
+
     def find_homes_for_homeless(self):
         homeless = []
         for k,v in self.humans.items():
@@ -450,6 +467,38 @@ class Ship:
                     continue
 
         self._add_log(3,str(len(homeless)-count_found_home)+" civilians could not find a home.")
+
+    def find_homes_for_hospitalized(self):
+        hospitalized = []
+        for k,v in self.humans.items():
+            if v.should_be_hospitalized() and v.lq.type != "hospital":
+                hospitalized.append(v)
+
+        lq = self.get_all_hospitals(only_vacant=True)
+        lq_keys = lq.keys()
+
+        counter = 0
+        count_found_home = 0
+        for human in hospitalized:
+            iters = len(lq_keys)
+            while(1):
+                if len(lq_keys) <= (counter):
+                    counter = 0
+
+                if lq[lq_keys[counter]].add_occupant(human):
+                    counter += 1
+                    count_found_home +=1
+                    break
+                else:
+                    counter += 1
+                    iters -= 1
+                    if iters <= 0:
+                        #WARNING - no vacancies, still homeless
+                        break
+                    continue
+
+        self._add_log(6,str(count_found_home)+" civlians were hospitalized.")
+        self._add_log(6,str(len(hospitalized)-count_found_home)+" civlians could not be hospitalized.")
 
 
     # =============== HUMAN MGMT ============================
