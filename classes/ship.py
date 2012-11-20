@@ -573,3 +573,4 @@ class Ship:
     def print_bars(self):
        for k,v in self.rooms.items():
         print v.name
+#this is a comment
