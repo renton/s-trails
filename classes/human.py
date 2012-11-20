@@ -23,7 +23,9 @@ class Human:
 
         self.old_age_immobile = False
         self.old_age_hospitalized = False
-
+		
+	self.should_be_prisoner = False
+		
         self.is_pregnant = False
         self.day_pregnant = 0
 
@@ -38,20 +40,23 @@ class Human:
     def _roll_stats(self):
         self.birthday = randint(1,365)
         self.stats = {
-            "int":randint(10,100),
-            "str":randint(10,100),
-            "agi":randint(10,100),
-            "cha":randint(10,100),
-            "emp":randint(10,100),
-            "cry":randint(10,100),
-            "eth":randint(10,100),
+            "int":randint(10,100), #intelligence
+            "str":randint(10,100), #strength
+            "agi":randint(10,100), #agility
+            "cha":randint(10,100), #charisma
+            "emp":randint(10,100), #empathy
+            "cry":randint(10,100), #creativity
+            "eth":randint(10,100), #work ethic
 
-            "hap":randint(80,100),
+            "hap":randint(80,100), #happiness
 
-            "loy":randint(10,100),
-            "imm":randint(10,100),
+            "loy":randint(10,100), #loyalty
+            "imm":randint(10,100), #immune system
         }
+        if randint(0,100) == 0:
+            self.should_be_prisoner = True
 
+    
         self.sex = choice(['m','f'])
 
         self.first_name = self.ship.name_reader.get_random_name(self.sex)
@@ -164,7 +169,11 @@ class Human:
     def should_be_hospitalized(self):
         # TODO handle disease/injury hospitalization
         return self.old_age_hospitalized
-    
+		
+    def should_be_imprisoned(self):
+        # TODO criminal system
+        return self.should_be_prisoner
+	
     def inc_stat(self,stat,amount):
         if self.stats[stat] < Human.MAX_STAT_VALUE:
             self.stats[stat]+=amount

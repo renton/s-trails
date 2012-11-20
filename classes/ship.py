@@ -10,6 +10,7 @@ from rooms.storage import *
 from rooms.bar import *
 from rooms.distillery import *
 from rooms.hospital import *
+from rooms.prison import *
 
 from copy import deepcopy
 
@@ -43,6 +44,10 @@ class Ship:
         {
             "obj":Room_Hospital,
             "num":5
+        },
+		 {
+            "obj":Room_Prison,
+            "num":4
         },
 
     ]
@@ -133,6 +138,7 @@ class Ship:
         self.find_homes_for_hospitalized()
         self.find_homes_for_homeless()
         self.find_jobs_for_unemployed()
+	self.find_prison_for_prisoners()
 
         #self.print_stats_living_quarters()
         #self.print_stats_silos()
@@ -141,7 +147,7 @@ class Ship:
         self.print_daily_logs()
         #self.print_inventory()
         #self.print_humans()
-        #self.print_rooms()
+        self.print_rooms()
 
         return self.is_game_over
 
@@ -436,6 +442,17 @@ class Ship:
                 else:
                     lq[v.id] = v
         return lq
+		
+    def get_all_prisons(self,only_vacant=False):
+        lq = {}
+        for k,v in self.rooms.items():
+            if v.type == "prison":
+                if only_vacant:
+                    if v.is_vacant:
+                        lq[v.id] = v
+                else:
+                    lq[v.id] = v
+        return lq
 
     def find_homes_for_homeless(self):
         homeless = []
@@ -471,7 +488,7 @@ class Ship:
     def find_homes_for_hospitalized(self):
         hospitalized = []
         for k,v in self.humans.items():
-            if v.should_be_hospitalized() and v.lq.type != "hospital":
+            if v.should_be_hospitalized() and v.lq and v.lq.type != "hospital":
                 hospitalized.append(v)
 
         lq = self.get_all_hospitals(only_vacant=True)
@@ -500,7 +517,38 @@ class Ship:
         self._add_log(6,str(count_found_home)+" civlians were hospitalized.")
         self._add_log(6,str(len(hospitalized)-count_found_home)+" civlians could not be hospitalized.")
 
+    def find_prison_for_prisoners(self):
+	imprisoned = []
+        for k,v in self.humans.items():
+            if v.should_be_imprisoned() and v.lq and v.lq.type != "prison" and v.lq.type != "hospital":
+                imprisoned.append(v)
 
+        lq = self.get_all_prisons(only_vacant=True)
+        lq_keys = lq.keys()
+
+        counter = 0
+        count_found_prison = 0
+        for human in imprisoned:
+            iters = len(lq_keys)
+            while(1):
+                if len(lq_keys) <= (counter):
+                    counter = 0
+
+                if lq[lq_keys[counter]].add_occupant(human):
+                    counter += 1
+                    count_found_prison +=1
+                    break
+                else:
+                    counter += 1
+                    iters -= 1
+                    if iters <= 0:
+                        #WARNING - no vacancies, still homeless
+                        break
+                    continue
+
+        self._add_log(6,str(count_found_prison)+" wanted criminals were imprisoned.")
+        self._add_log(6,str(len(imprisoned)-count_found_prison)+" wanted criminals could not be imprisoned.")
+		
     # =============== HUMAN MGMT ============================
     
     def remove_human(self,human,is_death=False):

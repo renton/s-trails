@@ -112,9 +112,8 @@ class Sim:
 
     def main_loop(self):
         while(1):
-            #self.step_day()
-            for faction in self.factions:
-                print faction['name']
+            self.step_day()
+           
             break
 
     def _generate_random_factions(self):
