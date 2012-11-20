@@ -100,7 +100,7 @@ class Room_Distillery(ShipRoom):
                     self.ship._add_log(2,"Cannot brew at distillery. Requirments not met: "+str(unmet_criteria))
                     return False
                 else:
-                    self.ship.remove_items(Room_Farm.INIT_DEFAULT_STEP_REQ_ITEMS)
+                    self.ship.remove_items(Room_Distillery.INIT_DEFAULT_STEP_REQ_ITEMS)
                     self.days_till_brewed -=1
     
     def _package(self):
@@ -112,7 +112,7 @@ class Room_Distillery(ShipRoom):
         # % chance at affecting yield
         #TODO - yield based on employees
         #TODO - cannot start without employees
-        unmet_criteria = self.ship.get_unmet_criteria(Room_Farm.INIT_DEFAULT_BREWED_REQ_ITEMS) 
+        unmet_criteria = self.ship.get_unmet_criteria(Room_Distillery.INIT_DEFAULT_BREWED_REQ_ITEMS) 
 
         if unmet_criteria:
             self.ship._add_warning(2,"Cannot package. Requirements not met: "+str(unmet_criteria))
