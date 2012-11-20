@@ -1,0 +1,35 @@
+
+
+==Inventory==
+**{'growth cells': 996, 'oxygen mask': 100, 'oxygen': 39370, 'fruit+veg': 1700, 'water': 29928, 'farming tools': 98, 'oxygen canister': 1000, 'fuel': 12133, 'grain': 1700, 'protein': 700, 'farming supplies': 998}
+
+
+==Inventory==
+**{'growth cells': 1000, 'oxygen mask': 100, 'oxygen': 39370, 'fruit+veg': 1700, 'water': 29930, 'farming tools': 100, 'oxygen canister': 1000, 'fuel': 12133, 'grain': 1700, 'protein': 700, 'farming supplies': 1000}
+
+==Inventory==
+**{'growth cells': 1000, 'oxygen mask': 100, 'oxygen': 39370, 'fruit+veg': 1700, 'water': 29930, 'farming tools': 100, 'oxygen canister': 1000, 'fuel': 12133, 'grain': 1700, 'protein': 700, 'farming supplies': 1000}
+
+==Inventory==
+**{'growth cells': 996, 'oxygen mask': 100, 'oxygen': 39370, 'fruit+veg': 1700, 'water': 29928, 'farming tools': 98, 'oxygen canister': 1000, 'fuel': 12133, 'grain': 1700, 'protein': 700, 'farming supplies': 998}
+
+==Inventory==
+**{'growth cells': 1000, 'oxygen mask': 100, 'oxygen': 39370, 'fruit+veg': 1700, 'water': 29930, 'farming tools': 100, 'oxygen canister': 1000, 'fuel': 12133, 'grain': 1700, 'protein': 700, 'farming supplies': 1000}
+
+==Inventory==
+**{'growth cells': 996, 'oxygen mask': 100, 'oxygen': 39370, 'fruit+veg': 1700, 'water': 29928, 'farming tools': 98, 'oxygen canister': 1000, 'fuel': 12133, 'grain': 1700, 'protein': 700, 'farming supplies': 998}
+
+==Inventory==
+**{'growth cells': 1000, 'oxygen mask': 100, 'oxygen': 39370, 'fruit+veg': 1700, 'water': 29930, 'farming tools': 100, 'oxygen canister': 1000, 'fuel': 12133, 'grain': 1700, 'protein': 700, 'farming supplies': 1000}
+
+==Inventory==
+**{'growth cells': 1000, 'oxygen mask': 100, 'alcohol': 100, 'oxygen': 39340, 'fruit+veg': 1700, 'water': 29930, 'farming tools': 100, 'oxygen canister': 1000, 'fuel': 12133, 'grain': 1700, 'protein': 700, 'farming supplies': 1000}
+
+==Inventory==
+**{'growth cells': 998, 'oxygen mask': 100, 'alcohol': 10, 'oxygen': 39340, 'fruit+veg': 1700, 'water': 29929, 'farming tools': 99, 'oxygen canister': 1000, 'fuel': 12133, 'grain': 1700, 'protein': 700, 'farming supplies': 999}
+
+==Inventory==
+**{'growth cells': 1000, 'oxygen mask': 100, 'alcohol': 10, 'oxygen': 39340, 'fruit+veg': 1700, 'water': 29930, 'farming tools': 100, 'oxygen canister': 1000, 'fuel': 12133, 'protein': 700, 'farming supplies': 1000}
+
+==Inventory==
+**{'growth cells': 1000, 'oxygen mask': 100, 'oxygen': 39340, 'fruit+veg': 1700, 'water': 29930, 'farming tools': 100, 'oxygen canister': 1000, 'fuel': 12133, 'grain': 1700, 'protein': 700, 'farming supplies': 1000}

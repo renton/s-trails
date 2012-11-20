@@ -18,6 +18,10 @@ ITEM = {
         "type":"item",
         "core":True
     },
+    "alcohol":{
+        "type":"item",
+        "core":True
+    },
     "protein":{
         "type":"item",
         "core":True

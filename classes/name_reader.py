@@ -32,6 +32,18 @@ class NameReader:
                 "file":(open('data/titles.txt','r')),
                 "names":None
             },
+            "animal": {
+                "file":(open('data/animals.txt','r+b')),
+                "names":None
+            },
+            "object": {
+                "file":(open('data/objects.txt','r+b')),
+                "names":None
+            },
+            "verb": {
+                "file":(open('data/verbs.txt','r+b')),
+                "names":None
+            }
         }
 
         for k,v in self.files.items():
@@ -39,3 +51,13 @@ class NameReader:
 
     def get_random_name(self,name_type):
         return random.choice(self.files[name_type]['names'])
+
+    def clean_files(self):
+        for k,v in self.files.items():
+           fileList= v['names']
+           fileList.sort()
+           outFile = v['file']
+           outFile.seek(0,0)
+           for item in fileList:
+               outFile.write(item + '\r\n')
+           outFile.close()

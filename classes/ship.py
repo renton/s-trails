@@ -7,6 +7,8 @@ from rooms.silo import *
 from rooms.livingquarters import *
 from rooms.farm import *
 from rooms.storage import *
+from rooms.bar import *
+from rooms.distillery import *
 
 from copy import deepcopy
 
@@ -27,6 +29,14 @@ class Ship:
         },
         {
             "obj":Room_Farm,
+            "num":20
+        },
+        {
+            "obj":Room_Bar,
+            "num":20
+        },
+        {
+            "obj":Room_Distillery,
             "num":20
         },
 
@@ -351,10 +361,16 @@ class Ship:
     # ============== LOGGING SYSTEM ===============
     # TODO - differnet types for topics (farming,housing,inventory,population,etc.)
 
-    def _add_log(self,level,message):
-        if level not in self.daily_logs:
-            self.daily_logs[level] = []
-        self.daily_logs[level].append(message)
+    def _add_log(self,level,message,archive=False):
+
+        if not archive:
+            if level not in self.daily_logs:
+                self.daily_logs[level] = []
+            self.daily_logs[level].append(message)
+        else:
+           outFile = open('Archived Log.txt', 'a+')
+           outFile.write(message)
+           outFile.close()
 
     def _clear_logs(self):
         self.daily_logs = {}
@@ -486,3 +502,6 @@ class Ship:
     def print_humans(self):
         for k,v in self.humans.items():
             v.print_stats()
+    def print_bars(self):
+       for k,v in self.rooms.items():
+        print v.name

@@ -1,0 +1,17 @@
+Antelope
+Beaver
+Cow
+Crow
+Dragon
+Elephant
+Elk
+Finch
+Fox
+Lion
+Rat
+Rhino
+Snake
+Swallow
+Tiger
+Weasel
+Wolf
