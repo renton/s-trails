@@ -2,13 +2,26 @@ import uuid
 from random import randint,choice
 
 class Human:
+
+    OLD_AGE = 75
+    MAX_STAT_VALUE = 100
+    MIN_STAT_VALUE = 0
+    DEPRESSION_THRESHOLD = 30
+    HEALTHY_HP = 50
+
     def __init__(self,ship=None,father=None,mother=None,day=None):
         self.id = uuid.uuid1()
         self.lq = None
         self.job = None
         self.ship = ship
         self.hp = 100
+        self.alive = True
+        self.days_on_ship = 0
+        self.days_at_job = 0
+        self.days_at_home = 0
         self.criminal_day_sentence = 0
+
+        self.old_age_immobile = False
 
         self.is_pregnant = False
         self.day_pregnant = 0
@@ -32,6 +45,8 @@ class Human:
             "cry":randint(0,100),
             "eth":randint(0,100),
 
+            "hap":randint(80,100),
+
             "loy":randint(0,100),
             "imm":randint(0,100),
         }
@@ -53,6 +68,8 @@ class Human:
             "cry":50,
             "eth":50,
 
+            "hap":50,
+
             "loy":50,
             "imm":50
         }
@@ -69,12 +86,94 @@ class Human:
 
         self.age = 50
 
-    def daily_step(self):
-        # % random event
-        pass
+    def daily_step(self,day):
+            
+        if self.alive:
+
+            # reduce happiness if homeless (TODO- % to change loyalty)
+            if self.lq is None:
+                # more empathetic people become depressed easier
+                empathy_factor = self.stats['emp']/10
+                self.dec_stat("hap",randint(0,empathy_factor))
+
+            # reduce happiness if jobless (TODO- % to change loyalty)
+            if self.job is None:
+                # more empathetic people become depressed easier
+                empathy_factor = self.stats['emp']/10
+                self.dec_stat("hap",randint(0,empathy_factor))
+
+            # celebrate birthday. increase happiness if you are social!
+            if day == self.birthday:
+                self.age += 1
+                self.ship._add_log(3,str(self.first_name)+" "+str(self.last_name)+" turned "+str(self.age)+" years old.")
+                self.inc_stat("hap",randint(0,((self.stats['cha'])/5)))
+
+            # if everything is good in life, increase happiness based on empathy
+            if self.job and self.lq and self.hp >= Human.HEALTHY_HP:
+                empathy_factor = self.stats['emp']/10
+                if randint(0,empathy_factor) == 0:
+                    self.inc_stat("hap",1)
+
+            # if you are depressed, it can lower your stats!
+            if self.stats["hap"] <= Human.DEPRESSION_THRESHOLD:
+                if randint(0,self.stats["hap"]*3) == 0:
+                    self.ship._add_log(3,str(self.first_name)+" "+str(self.last_name)+" is severely depressed.")
+                    self.dec_stat(choice(['agi','cha','cry','emp','eth']),1)
+
+
+            # if you are elderly
+            if self.age > Human.OLD_AGE:
+
+                # chance to decline in stats based on agility
+                health_factor = self.stats['agi']/10
+                if randint(0,health_factor) == 0:
+                    self.dec_stat(choice(['int','str','agi','eth']),randint(1,(self.age/10)))
+
+                # chance to lose hp in declining health
+                if randint(0,100) >= (((self.stats['agi']+self.stats['imm'])/2)+10):
+                    self.hp -= randint(1,5)
+
+                    # chance to become bedridden and unable to work
+                    if randint(0,self.stats['agi']) == 0:
+                        self.set_old_age_immobile()
+
+            # no longer alive
+            if self.hp <= 0:
+                self.ship._add_log(3,str(self.first_name)+" "+str(self.last_name)+" ("+str(self.age)+") has passed away.")
+                self.alive = False
+
+        self.days_on_ship +=1
+        self.days_at_job +=1
+        self.days_at_home +=1
+
+        return self.alive
+    
+    def inc_stat(self,stat,amount):
+        if self.stats[stat] < Human.MAX_STAT_VALUE:
+            self.stats[stat]+=amount
+        if self.stats[stat] > Human.MAX_STAT_VALUE:
+            self.stats[stat] = Human.MAX_STAT_VALUE
+
+    def dec_stat(self,stat,amount):
+        if self.stats[stat] > Human.MIN_STAT_VALUE:
+            self.stats[stat]-=amount
+        if self.stats[stat] < Human.MIN_STAT_VALUE:
+            self.stats[stat] = Human.MIN_STAT_VALUE
+
+    def set_old_age_immobile(self):
+        if self.old_age_immobile == False:
+            self.old_age_immobile = True
+            if self.job:
+                self.job['room'].fire_human(self,self.job['job'])
+            self.ship._add_log(3,str(self.first_name)+" "+str(self.last_name)+" ("+str(self.age)+") is bedridden and can no longer work.")
 
     def change_lq(self,new_lq):
+        self.days_at_home = 0
         self.lq = new_lq
+
+    def change_job(self,new_job):
+        self.days_at_job = 0
+        self.job = new_job
 
     def print_stats(self):
         print str(self.first_name)+" "+str(self.last_name)+": "+str(self.stats)

@@ -26,6 +26,9 @@ class Sim:
                 'Pioneers',
                 'Harvesters',
                 'Farmers',
+                'Travellers',
+                'Merchants',
+                'United',
             ],
             'miner':[
                 'Miners',
@@ -35,6 +38,8 @@ class Sim:
                 'Crafters',
                 'Terraformers',
                 'Grease Monkeys',
+                'Union',
+                'Astrofarmers',
             ],
             'soldier':[
                 'Mercenaries',
@@ -48,6 +53,8 @@ class Sim:
                 'Templars',
                 'Grenadiers',
                 'Riflemen',
+                'Dragoons',
+                'Generals',
             ],
             'scientist':[
                 'Students',
@@ -74,6 +81,7 @@ class Sim:
                 'Defilers',
                 'Warlords',
                 'Mauraders',
+                'Gang',
             ],
             'convict':[
                 'Convicts',
@@ -89,7 +97,7 @@ class Sim:
     def step_day(self):
         print "\n----------------- "+str(self.day)+" "+str(self.year)+" -------------------"
         
-        self.ship.daily_step()
+        self.ship.daily_step(self.day)
 
         if self.day >= Sim.INIT_DAYS_IN_YEAR:
             self.year += 1
@@ -101,8 +109,6 @@ class Sim:
     def main_loop(self):
         while(1):
             self.step_day()
-            for faction in self.factions:
-                print faction['name']
             break
 
     def _generate_random_factions(self):

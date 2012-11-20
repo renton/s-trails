@@ -27,10 +27,15 @@ class ShipRoom(ShipEntity):
                 output[k] = v['max_employees'] - len(v['employees'])
         return output
 
+    def fire_human(self,human,job):
+        del self.jobs[job]['employees'][human.id]
+        human.change_job(None)
+        self.ship._add_log(2,str(human.first_name)+" "+str(human.last_name)+" no longer works as a <"+str(job)+"> at <"+str(self.name)+">")
+
     def employ_human(self,human,job):
         self.jobs[job]['employees'][human.id] = human
-        human.job = {"room":self,"job":job}
-        #self.ship._add_log(1,str(human.first_name)+" "+str(human.last_name)+" took a job as a <"+str(job)+"> at <"+str(self.name)+">")
+        human.change_job({"room":self,"job":job})
+        self.ship._add_log(2,str(human.first_name)+" "+str(human.last_name)+" took a job as a <"+str(job)+"> at <"+str(self.name)+">")
 
     def has_manager(self):
         return len(self.jobs[self.manager_label]['employees']) == 1
@@ -87,6 +92,7 @@ class ShipLivableRoom(ShipRoom):
         return False
 
     def remove_occupant(self,human):
+        self.ship._add_log(3,str(human.first_name)+" "+str(human.last_name)+" no longer lives at <"+str(self.name)+">")
         if human.id in self.occupants:
             del self.occupants[human.id]
             human.change_lq(None)

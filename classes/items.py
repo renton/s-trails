@@ -45,5 +45,8 @@ ITEM = {
     "oxygen canister":{
         "type":"item"
     },
+    "corpse":{
+        "type":"item"
+    },
 
 }

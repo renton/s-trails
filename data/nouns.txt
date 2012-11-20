@@ -48,3 +48,6 @@ Republic
 Arbiters
 Judges
 Defenders
+Way
+Movement
+Spear

@@ -64,3 +64,5 @@ Wealthy
 Hunted
 Heavenly
 Ancient
+Democratic
+Open

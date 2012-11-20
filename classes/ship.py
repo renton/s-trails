@@ -29,15 +29,15 @@ class Ship:
         },
         {
             "obj":Room_Farm,
-            "num":20
+            "num":0
         },
         {
             "obj":Room_Bar,
-            "num":20
+            "num":0
         },
         {
             "obj":Room_Distillery,
-            "num":20
+            "num":0
         },
 
     ]
@@ -107,7 +107,7 @@ class Ship:
 
     # =============== DAILY ITERATION =========================
 
-    def daily_step(self):
+    def daily_step(self,day):
 
         self._clear_logs()
 
@@ -117,17 +117,16 @@ class Ship:
 
         # step humans
         for k,v in self.humans.items():
-            a_human = v
-            v.daily_step()
+            if not v.daily_step(day):
+                #passed away
+                self.remove_human(v,is_death=True)
 
         # step rooms+employees
         for k,v in self.rooms.items():
             v.daily_step(self)
 
-        # step jobfinder
-    
-        # step homefinder
-
+        self.find_homes_for_homeless()
+        self.find_jobs_for_unemployed()
 
         #self.print_stats_living_quarters()
         #self.print_stats_silos()
@@ -157,7 +156,7 @@ class Ship:
         (status,remainder) = self.remove_items(resources)
 
         if status == False:
-            self._add_log(2,"Not enough foods")
+            self._add_log(1,"Not enough foods")
 
     def _daily_use_fuel(self):
         #TODO - based on current settings and upgrades
@@ -165,7 +164,7 @@ class Ship:
         (status,remainder) = self.remove_items({"fuel":amount})
 
         if status == False:
-            self._add_log(2,"Not enough fuel. Need "+str(remainder))
+            self._add_log(1,"Not enough fuel. Need "+str(remainder))
 
     def _daily_use_oxygen(self):
         #TODO - based on current settings and upgrades
@@ -173,7 +172,7 @@ class Ship:
         (status,remainder) = self.remove_items({"oxygen":amount})
 
         if status == False:
-            self._add_log(2,"Not enough oxygen. Need "+str(remainder))
+            self._add_log(1,"Not enough oxygen. Need "+str(remainder))
             #TODO start using oxygen tank items to survive
 
     # =================== INVENTORY SYSTEM ================================
@@ -381,7 +380,7 @@ class Ship:
         #TODO - smart placment system
         unemployed = []
         for k,v in self.humans.items():
-            if v.job is None:
+            if v.job is None and not v.old_age_immobile:
                 unemployed.append(v)
 
         for k_room_id,v_room in self.rooms.items():
@@ -431,6 +430,7 @@ class Ship:
         lq_keys = lq.keys()
 
         counter = 0
+        count_found_home = 0
         for human in homeless:
             iters = len(lq_keys)
             while(1):
@@ -439,6 +439,7 @@ class Ship:
 
                 if lq[lq_keys[counter]].add_occupant(human):
                     counter += 1
+                    count_found_home +=1
                     break
                 else:
                     counter += 1
@@ -447,6 +448,23 @@ class Ship:
                         #WARNING - no vacancies, still homeless
                         break
                     continue
+
+        self._add_log(3,str(len(homeless)-count_found_home)+" civilians could not find a home.")
+
+
+    # =============== HUMAN MGMT ============================
+    
+    def remove_human(self,human,is_death=False):
+
+        if human.lq:
+            human.lq.remove_occupant(human)
+        if human.job:
+            human.job['room'].fire_human(human,human.job['job'])
+
+        del self.humans[human.id]
+
+        if is_death:
+            self.add_items({"corpse":1})
 
     # =============== PRINT DEBUGGING =======================
 
@@ -501,7 +519,8 @@ class Ship:
 
     def print_humans(self):
         for k,v in self.humans.items():
-            v.print_stats()
+            print v.first_name,v.last_name,v.age,v.hp
+
     def print_bars(self):
        for k,v in self.rooms.items():
         print v.name
