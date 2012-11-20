@@ -5,31 +5,31 @@ class NameReader:
 
         self.files = {
             "m": {
-                "file":(open('data/male_first_names.txt','r')),
+                "file":(open('data/male_first_names.txt','r+b')),
                 "names":None
             },
             "f": {
-                "file":(open('data/female_first_names.txt','r')),
+                "file":(open('data/female_first_names.txt','r+b')),
                 "names":None
             },
             "l": {
-                "file":(open('data/last_names.txt','r')),
+                "file":(open('data/last_names.txt','r+b')),
                 "names":None
             },
             "lq": {
-                "file":(open('data/lq_names.txt','r')),
+                "file":(open('data/lq_names.txt','r+b')),
                 "names":None
             },
             "adjective": {
-                "file":(open('data/adjectives.txt','r')),
+                "file":(open('data/adjectives.txt','r+b')),
                 "names":None
             },
             "noun": {
-                "file":(open('data/nouns.txt','r')),
+                "file":(open('data/nouns.txt','r+b')),
                 "names":None
             },
             "title": {
-                "file":(open('data/titles.txt','r')),
+                "file":(open('data/titles.txt','r+b')),
                 "names":None
             },
             "animal": {

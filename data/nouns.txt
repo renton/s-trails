@@ -47,3 +47,4 @@ Kingdom
 Republic
 Arbiters
 Judges
+Defenders

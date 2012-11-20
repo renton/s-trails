@@ -100,7 +100,7 @@ class Sim:
 
     def main_loop(self):
         while(1):
-            #self.step_day()
+            self.step_day()
             for faction in self.factions:
                 print faction['name']
             break
@@ -139,18 +139,29 @@ class Sim:
                         word("m"),
                         word("f"),
                         word("l"),
-                        word("l")+" the "+word("adjective"),
-                        word("title")+" "+word("l")])+"'s"
+                        word("adjective")+" "+word("m"),
+                        word("adjective")+" "+word("f"),
+                        word("adjective")+" "+word("l"),
+                        word("m")+" the "+word("adjective"),
+                        word("f")+" the "+word("adjective"),
+                        word("title")+" "+word("l"),
+                        word("m")+" the "+word("animal"),
+                        word("f")+" the "+word("animal")])+"'s"
         patterns = [
             word("noun")+" of the "+word("adjective")+" "+word("noun"),
             word("noun")+" of the "+word("adjective")+" "+group,
-            name+" "+word("adjective")+" "+group,
             name+" "+group,
-            word("adjective")+" "+name+" "+group,
-            word("adjective")+" "+name+" "+word("adjective")+" "+group,
+            name+" "+word("adjective")+" "+group,
             word("adjective")+" "+word("noun")+" "+group,
             group+" of the "+word("noun"),
             group+" of the "+word("adjective")+" "+word("noun"),
+            "The "+word("adjective")+" "+group,
+            "The "+word("adjective")+" "+word("noun")+" "+group,
+            "The "+word("adjective")+" "+word("animal")+"s",
+            word("adjective")+" "+word("noun")+" "+word("animal")+"s",
+            name+" "+word("animal")+"s",
+            name+" "+word("adjective")+" "+word("animal")+"s",
+            word("adjective")+" "+word("animal")+" "+group,
         ]
 
         return choice(patterns)
