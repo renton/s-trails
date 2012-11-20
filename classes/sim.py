@@ -30,6 +30,7 @@ class Sim:
                 'Merchants',
                 'United',
                 'Congress',
+                'Cult',
             ],
             'miner':[
                 'Miners',
@@ -111,7 +112,7 @@ class Sim:
 
     def main_loop(self):
         while(1):
-            self.step_day()
+            #self.step_day()
             for faction in self.factions:
                 print faction['name']
             break
@@ -157,12 +158,13 @@ class Sim:
                         word("f")+" the "+word("adjective"),
                         word("title")+" "+word("l"),
                         word("m")+" the "+word("animal"),
-                        word("f")+" the "+word("animal")])+"'s"
+                        word("f")+" the "+word("animal")])
         patterns = [
             word("noun")+" of the "+word("adjective")+" "+word("noun"),
             word("noun")+" of the "+word("adjective")+" "+group,
-            name+" "+group,
-            name+" "+word("adjective")+" "+group,
+            name+"'s "+group,
+            name+"'s "+word("adjective")+" "+group,
+            name+"'s "+word("animal")+" "+group,
             word("adjective")+" "+word("noun")+" "+group,
             group+" of the "+word("noun"),
             group+" of the "+word("adjective")+" "+word("noun"),
@@ -170,10 +172,13 @@ class Sim:
             "The "+word("adjective")+" "+word("noun")+" "+group,
             "The "+word("adjective")+" "+word("animal")+"s",
             word("adjective")+" "+word("noun")+" "+word("animal")+"s",
-            name+" "+word("animal")+"s",
-            name+" "+word("adjective")+" "+word("animal")+"s",
+            name+"'s "+word("animal")+"s",
+            name+"'s "+word("adjective")+" "+word("animal")+"s",
             word("adjective")+" "+word("animal")+" "+group,
-            word("noun")+" of the "+word("adjective")
+            word("noun")+" of the "+word("adjective"),
+            "The "+word("animal")+" "+group,
+            group+" of "+name,
+            word("adjective")+" "+group+" of "+name
         ]
 
         return choice(patterns)
