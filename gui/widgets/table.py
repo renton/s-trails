@@ -14,8 +14,11 @@ class Table(BaseWidget):
 
     INIT_CONTROLBAR_HEIGHT = 30
 
-    INIT_ROW_HEIGHT = 24
-    INIT_ROWS_PER_PAGE = 19
+    INIT_ROW_HEIGHT = 22
+    INIT_ROWS_PER_PAGE = 28
+
+    INIT_CELL_TOP_PADDING = 6
+    INIT_CELL_LEFT_PADDING = 4
 
     INIT_HEADER_BACKGROUND_COLOR = (0,0,50)
     INIT_ALT_ROW_BACKGROUND_COLOR = (0,0,125)
@@ -24,12 +27,15 @@ class Table(BaseWidget):
         BaseWidget.__init__(self,left,top,width,height,callbacks=callbacks)
         self.current_page = Table.INIT_PAGE
         self.current_sort = Table.INIT_SORT
+        self.sort_asc = True
         self.update_table()
 
     def update_table(self):
         table_data = self.fire_callback("update")
         self.sub_widgets = []
-        table_data['data'].sort(key = lambda row: row[self.current_sort])
+
+        table_data['data'].sort(key = lambda row: row[self.current_sort], reverse=self.sort_asc)
+
         self.pages = len(table_data['data'])/Table.INIT_ROWS_PER_PAGE
         start_record = Table.INIT_ROWS_PER_PAGE * self.current_page
         end_record = start_record + Table.INIT_ROWS_PER_PAGE
@@ -44,14 +50,16 @@ class Table(BaseWidget):
                                             self.width - (self.border_width*2) - (Table.INIT_TABLE_PADDING*2),
                                             Table.INIT_TITLE_HEIGHT,
                                             text=(str(table_data['title'])+":  PAGE "+str(self.current_page+1)+" of "+str(self.pages+1)).upper(),
-                                            border=0))
+                                            border=0,
+                                            t_padding_top=Table.INIT_CELL_TOP_PADDING,
+                                            t_padding_left=Table.INIT_CELL_LEFT_PADDING))
 
         y_pos += Table.INIT_TITLE_HEIGHT
-        cell_width = (self.width-(self.border_width*2)-(Table.INIT_TABLE_PADDING*2))/len(table_data['header'])
 
         col_count = 0
         for data in table_data['header']:
 
+            cell_width = ((self.width-(self.border_width*2)-(Table.INIT_TABLE_PADDING*2))*table_data['width'][col_count])/100
             sort_callback = self.get_sort_lambda(col_count)
             self.sub_widgets.append(BaseWidget(
                                                 x_pos,
@@ -61,7 +69,9 @@ class Table(BaseWidget):
                                                 text=str(data).upper(),
                                                 border=0,
                                                 bg_color=Table.INIT_HEADER_BACKGROUND_COLOR,
-                                                callbacks={"clicked":sort_callback}))
+                                                callbacks={"clicked":sort_callback},
+                                                t_padding_top=Table.INIT_CELL_TOP_PADDING,
+                                                t_padding_left=Table.INIT_CELL_LEFT_PADDING))
             col_count += 1
             x_pos += cell_width
 
@@ -70,8 +80,10 @@ class Table(BaseWidget):
 
         row_count = 0
         for data in table_data['data']:
+            col_count = 0
             for record in data:
 
+                cell_width = ((self.width-(self.border_width*2)-(Table.INIT_TABLE_PADDING*2))*table_data['width'][col_count])/100
                 if row_count % 2:
                     row_bg_color = None
                 else:
@@ -85,8 +97,11 @@ class Table(BaseWidget):
                                                     Table.INIT_ROW_HEIGHT,
                                                     text=str(record).upper(),
                                                     border=0,
-                                                    bg_color=row_bg_color))
+                                                    bg_color=row_bg_color,
+                                                    t_padding_top=Table.INIT_CELL_TOP_PADDING,
+                                                    t_padding_left=Table.INIT_CELL_LEFT_PADDING))
 
+                col_count += 1
                 x_pos += cell_width
             x_pos = self.left+self.border_width+Table.INIT_TABLE_PADDING
             y_pos += Table.INIT_ROW_HEIGHT
@@ -130,6 +145,7 @@ class Table(BaseWidget):
             self.update_table()
 
     def set_sort(self,sort_index):
+        self.sort_asc = not self.sort_asc
         self.current_sort = sort_index
         self.update_table()
 

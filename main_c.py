@@ -143,6 +143,7 @@ class TestGui():
         data['title'] = "INVENTORY"
         data['header'] = ['name','quantity']
         data['data'] = []
+        data['width'] = [90,10]
 
         inventory = self.sim.ship.get_inventory()
         for k,v in inventory.items():
@@ -154,6 +155,7 @@ class TestGui():
         data['title'] = "STORES"
         data['header'] = ['name','amount','capacity']
         data['data'] = []
+        data['width'] = [80,10,10]
 
         stores = self.sim.ship.get_all_storages()
         for k,v in stores.items():
@@ -166,6 +168,7 @@ class TestGui():
         data['title'] = "SILOS"
         data['header'] = ['name','type','amount','capacity']
         data['data'] = []
+        data['width'] = [50,30,10,10]
 
         silos = self.sim.ship.get_all_silos()
         for k,v in silos.items():
@@ -175,8 +178,9 @@ class TestGui():
     def get_humans(self):
         data = {}
         data['title'] = "CITIZENS"
-        data['header'] = ['first','last','age','job']
+        data['header'] = ['first','last','hp','age','int','str','agi','cha','emp','cry','eth','job','home']
         data['data'] = []
+        data['width'] = [14,14,6,4,4,4,4,4,4,4,4,17,17]
 
         humans = self.sim.ship.humans
         for k,v in humans.items():
@@ -185,7 +189,12 @@ class TestGui():
             else:
                 job = "NONE"
 
-            data['data'].append([v.first_name,v.last_name,v.age,job])
+            if v.lq:
+                lq = v.lq.name
+            else:
+                lq = "NONE"
+
+            data['data'].append([v.first_name,v.last_name,v.hp,v.age,v.stats['int'],v.stats['str'],v.stats['agi'],v.stats['cha'],v.stats['emp'],v.stats['cry'],v.stats['eth'],job,lq])
         return data
 
     def get_logs(self,log_type=-1,log_level=-1):
@@ -193,6 +202,7 @@ class TestGui():
         data['title'] = "DAILY LOGS"
         data['header'] = ['level','log']
         data['data'] = []
+        data['width'] = [10,90]
 
 
         print self.sim.ship.daily_logs[0]
@@ -211,6 +221,7 @@ class TestGui():
         data['title'] = "ROOMS"
         data['header'] = ['name','type','cond']
         data['data'] = []
+        data['width'] = [70,20,10]
 
         for k,v in self.sim.ship.rooms.items():
             data['data'].append([v.name,v.type,0])
@@ -221,6 +232,7 @@ class TestGui():
         data['title'] = "ROOM TYPES"
         data['header'] = ['type','amount']
         data['data'] = []
+        data['width'] = [80,20]
 
         types = {}
         for k,v in self.sim.ship.rooms.items():
@@ -237,6 +249,7 @@ class TestGui():
         data['title'] = "FACTIONS"
         data['header'] = ['name','type','power']
         data['data'] = []
+        data['width'] = [70,20,10]
 
         for v in self.sim.factions:
             data['data'].append([v['name'],v['type'],v['power']])

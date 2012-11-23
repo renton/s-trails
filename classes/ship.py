@@ -22,6 +22,8 @@ class Ship:
     INIT_NUM_INTERNAL_COMPONENTS = 0
     INIT_NUM_EXTERNAL_COMPONENTS = 0
 
+    STARTING_JOB_AGE = 16
+
     INIT_ROOMS = [
         {
             "obj":Room_Storage,
@@ -396,7 +398,7 @@ class Ship:
         #TODO - smart placment system
         unemployed = []
         for k,v in self.humans.items():
-            if v.job is None and not v.old_age_immobile and not v.should_be_hospitalized():
+            if v.job is None and not v.old_age_immobile and not v.should_be_hospitalized() and v.age >= Ship.STARTING_JOB_AGE:
                 unemployed.append(v)
 
         for k_room_id,v_room in self.rooms.items():

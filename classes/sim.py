@@ -6,7 +6,7 @@ class Sim:
     INIT_STARTING_YEAR = 5029
     INIT_STARTING_DAY = 1
     INIT_DAYS_IN_YEAR = 365
-    INIT_NUM_FACTIONS = 30
+    INIT_NUM_FACTIONS = 20
 
     def __init__(self):
         self.name_reader = NameReader()

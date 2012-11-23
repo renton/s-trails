@@ -3,7 +3,7 @@ class BaseWidget():
     DEFAULT_BORDER_WIDTH = 2
     DEFAULT_BORDER_COLOR = (255,255,255)
 
-    def __init__(self,left,top,width,height,callbacks=None,text=None,border=2,bg_color=None):
+    def __init__(self,left,top,width,height,callbacks=None,text=None,border=2,bg_color=None,t_padding_top=0,t_padding_left=0):
         self.left = left
         self.top = top
         self.width = width
@@ -17,6 +17,9 @@ class BaseWidget():
         self.sub_widgets = []
         self.border_width = border
         self.border_color = BaseWidget.DEFAULT_BORDER_COLOR
+
+        self.t_padding_left = t_padding_left
+        self.t_padding_top = t_padding_top
 
         self.text = text
 
@@ -36,10 +39,10 @@ class BaseWidget():
         #based on font size
         if self.text:
             textrect = pygame.Rect(
-                rect.left+10,
-                rect.top+(rect.height/2),
+                rect.left+self.t_padding_left,
+                rect.top+self.t_padding_top,
                 rect.width,
-                rect.height/2)
+                font.get_linesize())
 
             text = font.render(self.text, True, (255,255,255), self.background_color)
             screen.blit(text,textrect)
