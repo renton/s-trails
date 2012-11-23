@@ -3,7 +3,7 @@ from random import randint
 
 class Room_Bar(ShipRoom):
 
-    INIT_DEFAULT_ITEM = 'alcohol' #Well being?
+    INIT_DEFAULT_ITEM = 'alcohol' #Well being? people with higher 'cha' get bigger affect (more social)
 
     INIT_DEFAULT_SERVICE_REQUIREMENTS = {
         "alcohol":50

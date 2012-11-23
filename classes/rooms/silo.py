@@ -1,4 +1,5 @@
 from classes.ship_entity import *
+from random import randint
 
 class ShipSilo(ShipRoom):
     TYPES = ['water','oxygen','fuel']
@@ -7,6 +8,7 @@ class ShipSilo(ShipRoom):
     def __init__(self,ship,silo_type):
         ShipEntity.__init__(self,ship)
         self.type = "silo"
+        self.name = "Silo "+str(randint(0,999))+"-"+str(randint(0,9))
         self.item_type = silo_type
         self.capacity = ShipSilo.INIT_CAPACITY
         self.amount = 0

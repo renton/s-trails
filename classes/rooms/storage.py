@@ -7,7 +7,7 @@ class Room_Storage(ShipRoom):
 
     def __init__(self,ship):
         ShipRoom.__init__(self,ship)
-        self.name = "Store "+str(randint(0,9999))+"-"+str(randint(0,99))
+        self.name = "Store "+str(randint(0,999))+"-"+str(randint(0,9))
         self.type = "storage"
         self.item_store = {}
         self.capacity = Room_Storage.INIT_CAPACITY

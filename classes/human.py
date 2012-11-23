@@ -7,6 +7,7 @@ class Human:
     MAX_STAT_VALUE = 100
     MIN_STAT_VALUE = 0
     DEPRESSION_THRESHOLD = 30
+    HIGH_STANDARD_HAPPINESS = 80
     HEALTHY_HP = 50
 
     def __init__(self,ship=None,father=None,mother=None,day=None):
@@ -116,16 +117,18 @@ class Human:
 
             # if everything is good in life, increase happiness based on empathy
             if self.job and self.lq and self.hp >= Human.HEALTHY_HP:
-                empathy_factor = self.stats['emp']/10
+                empathy_factor = self.stats['emp']/5
                 if randint(0,empathy_factor) == 0:
                     self.inc_stat("hap",1)
+
+            if self.stats["hap"] >= Human.HIGH_STANDARD_HAPPINESS:
+                self.inc_stat("loy",1)
 
             # if you are depressed, it can lower your stats!
             if self.stats["hap"] <= Human.DEPRESSION_THRESHOLD:
                 if randint(0,self.stats["hap"]*3) == 0:
                     #self.ship._add_log(3,str(self.first_name)+" "+str(self.last_name)+" is severely depressed.")
-                    self.dec_stat(choice(['agi','cha','cry','emp','eth']),1)
-
+                    self.dec_stat(choice(['agi','cha','cry','emp','eth','loy']),1)
 
             # if you are elderly
             if self.age > Human.OLD_AGE:
