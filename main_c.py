@@ -16,11 +16,11 @@ class TestGui():
             },
             {
                 "name":"LOGS",
-                "clicked":lambda:self.load_table(self.main_menu,self.get_logs)
+                "clicked":lambda:self.load_table(self.logs_menu,lambda: self.get_logs(-1,0))
             },
             {
                 "name":"ROOMS",
-                "clicked":lambda:self.load_table(self.main_menu,self.get_rooms)
+                "clicked":lambda:self.load_table(self.rooms_menu,self.get_rooms)
             },
             {
                 "name":"INVENTORY",
@@ -59,15 +59,55 @@ class TestGui():
             },
         ]
 
+        self.rooms_menu = [
+            {
+                "name":"ALL ROOMS",
+                "clicked":lambda:self.load_table(self.rooms_menu,self.get_rooms)
+            },
+            {
+                "name":"ROOM TYPES",
+                "clicked":lambda:self.load_table(self.rooms_menu,self.get_room_types)
+            },
+            {
+                "name":"BACK",
+                "clicked":lambda: self.load_home(self.main_menu),
+            },
+        ]
+
+        self.logs_menu = [
+            {
+                "name":"WARNINGS",
+                "clicked":lambda:self.load_table(self.logs_menu,lambda: self.get_logs(-1,0))
+            },
+            {
+                "name":"INVENTORY LOGS",
+                "clicked":lambda:self.load_table(self.logs_menu,lambda: self.get_logs(0,-1))
+            },
+            {
+                "name":"ROOM LOGS",
+                "clicked":lambda:self.load_table(self.logs_menu,lambda: self.get_logs(1,-1))
+            },
+            {
+                "name":"HUMAN LOGS",
+                "clicked":lambda:self.load_table(self.logs_menu,lambda: self.get_logs(2,-1))
+            },
+            {
+                "name":"BACK",
+                "clicked":lambda: self.load_home(self.main_menu),
+            },
+        ]
+
         self.gui = gui_c.Gui()
-        self.load_home(self.main_menu)
         self.sim = Sim()
+        self.load_home(self.main_menu)
 
     def main_loop(self):
         self.gui.main_loop()
 
+    ###################################################################################
+
     def load_home(self,menu):
-        home = HomeLocation(menu)
+        home = HomeLocation(menu,self.get_overview())
         self.gui.load_template(home)
 
     def load_loading(self):
@@ -76,11 +116,8 @@ class TestGui():
     def load_splash(self):
         pass
 
-    def refresh(self):
-        self.gui.update()
-
     def load_table(self,menu,tdata_callback):
-        home = HomeTable(menu,{"update":tdata_callback})
+        home = HomeTable(menu,self.get_overview(),{"update":tdata_callback})
         self.gui.load_template(home)
 
     #next could be useful to string multiple popups
@@ -94,28 +131,7 @@ class TestGui():
 
         self.gui.load_template(t)
 
-    ###
-
-    def get_empty_data(self):
-        return {"header":[],"data":[]}
-
-    def get_sample_data(self):
-
-        data = []
-
-        for i in range(100):
-            data.append([randint(0,100),randint(0,100),randint(0,100),randint(0,100)])
-
-        return {
-                "title":"SAMPLE DATA",
-                "header":[
-                    "COL1",
-                    "COL2",
-                    "COL3",
-                    "COL4",
-                ],
-                "data":data
-                }
+    ################################################################################################
 
     def get_inventory(self):
         data = {}
@@ -167,17 +183,24 @@ class TestGui():
             data['data'].append([v.first_name,v.last_name,v.age,job])
         return data
 
-    def get_logs(self):
+    def get_logs(self,log_type=-1,log_level=-1):
         data = {}
         data['title'] = "DAILY LOGS"
-        data['header'] = ['log']
+        data['header'] = ['level','log']
         data['data'] = []
 
-        for k,v in self.sim.ship.daily_logs.items():
-            for log in v:
-                data['data'].append([log])
+
+        print self.sim.ship.daily_logs[0]
+
+        for k_type,v_type in self.sim.ship.daily_logs.items():
+            if log_type == -1 or k_type == log_type:
+                for k_level,v_level in v_type.items():
+                    if log_level == -1 or k_level == log_level:
+                        for log in v_level:
+                            data['data'].append([k_level,log])
         return data
 
+    # room type breakdown
     def get_rooms(self):
         data = {}
         data['title'] = "ROOMS"
@@ -188,9 +211,35 @@ class TestGui():
             data['data'].append([v.name,v.type,0])
         return data
 
+    def get_room_types(self):
+        data = {}
+        data['title'] = "ROOM TYPES"
+        data['header'] = ['type','amount']
+        data['data'] = []
+
+        types = {}
+        for k,v in self.sim.ship.rooms.items():
+            if v.type not in types:
+                types[v.type] = 0
+            types[v.type] += 1
+
+        for k,v in types.items():
+            data['data'].append([k,v])
+        return data
+
     def step_day(self):
         self.sim.step_day()
         self.load_home(self.main_menu)
+
+    def get_overview(self):
+        overview = []
+        date = str(self.sim.day)+" "+str(self.sim.year)
+        overview.append({"name":"Date: "+str(date),"clicked":None})
+        overview_items = self.sim.ship.get_overview()
+        for k,v in overview_items.items():
+           overview.append({"name":str(k)+": "+str(v[0])+" "+str(v[2]),"clicked":None})
+        overview.append({"name":"POPULATION: "+str(len(self.sim.ship.humans)),"clicked":None})
+        return overview
 
 t = TestGui()
 t.main_loop()

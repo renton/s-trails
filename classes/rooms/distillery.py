@@ -71,7 +71,7 @@ class Room_Distillery(ShipRoom):
         #TODO - items dont remove or have a % of removing
 
         if not self.has_manager():
-            self.ship._add_log(2,str(self.name)+" needs manager to process distillery.")
+            self.ship._add_log(Ship.LOG_TYPE_ROOMS,Ship.LOG_LEVEL_HIGH,str(self.name)+" needs manager to process distillery.")
             return False
 
         unmet_criteria = self.ship.get_unmet_criteria(Room_Distillery.INIT_DEFAULT_BREW_REQ_ITEMS)

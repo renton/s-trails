@@ -1,5 +1,6 @@
 import uuid
 from random import randint,choice
+from log_types import *
 
 class Human:
 
@@ -117,7 +118,7 @@ class Human:
             # celebrate birthday. increase happiness if you are social!
             if day == self.birthday:
                 self.age += 1
-                self.ship._add_log(3,str(self.first_name)+" "+str(self.last_name)+" turned "+str(self.age)+" years old.")
+                self.ship._add_log(LOG_TYPE_HUMANS,LOG_LEVEL_LOW,str(self.first_name)+" "+str(self.last_name)+" turned "+str(self.age)+" years old.")
                 self.inc_stat("hap",randint(0,((self.stats['cha'])/5)))
 
             # if everything is good in life, increase happiness based on empathy
@@ -155,12 +156,12 @@ class Human:
                     else:
                         if not self.old_age_hospitalized:
                             if randint(0,100) >= self.stats['imm'] and self.hp < Human.HEALTHY_HP:
-                                self.ship._add_log(3,str(self.first_name)+" "+str(self.last_name)+" requires hospitalization due to old age.")
+                                self.ship._add_log(LOG_TYPE_HUMANS,LOG_LEVEL_MED,str(self.first_name)+" "+str(self.last_name)+" requires hospitalization due to old age.")
                                 self.old_age_hospitalized = True
 
             # no longer alive
             if self.hp <= 0:
-                self.ship._add_log(3,str(self.first_name)+" "+str(self.last_name)+" ("+str(self.age)+") has passed away.")
+                self.ship._add_log(LOG_TYPE_HUMANS,LOG_LEVEL_HIGH,str(self.first_name)+" "+str(self.last_name)+" ("+str(self.age)+") has passed away.")
                 self.alive = False
 
         self.days_on_ship +=1
@@ -194,7 +195,7 @@ class Human:
             self.old_age_immobile = True
             if self.job:
                 self.job['room'].fire_human(self,self.job['job'])
-            self.ship._add_log(3,str(self.first_name)+" "+str(self.last_name)+" ("+str(self.age)+") is bedridden and can no longer work.")
+            self.ship._add_log(LOG_TYPE_ROOMS,LOG_LEVEL_MED,str(self.first_name)+" "+str(self.last_name)+" ("+str(self.age)+") is bedridden and can no longer work.")
 
     def change_lq(self,new_lq):
         self.days_at_home = 0

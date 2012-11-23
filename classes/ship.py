@@ -14,6 +14,8 @@ from rooms.prison import *
 
 from copy import deepcopy
 
+from log_types import *
+
 class Ship:
 
     INIT_POPULATION_SIZE = 3000
@@ -168,7 +170,7 @@ class Ship:
         (status,remainder) = self.remove_items(resources)
 
         if status == False:
-            self._add_log(1,"Not enough foods")
+            self._add_log(LOG_TYPE_INVENTORY,LOG_LEVEL_HIGH,"Not enough foods")
 
     def _daily_use_fuel(self):
         #TODO - based on current settings and upgrades
@@ -176,7 +178,7 @@ class Ship:
         (status,remainder) = self.remove_items({"fuel":amount})
 
         if status == False:
-            self._add_log(1,"Not enough fuel. Need "+str(remainder))
+            self._add_log(LOG_TYPE_INVENTORY,LOG_LEVEL_HIGH,"Not enough fuel. Need "+str(remainder))
 
     def _daily_use_oxygen(self):
         #TODO - based on current settings and upgrades
@@ -184,7 +186,7 @@ class Ship:
         (status,remainder) = self.remove_items({"oxygen":amount})
 
         if status == False:
-            self._add_log(1,"Not enough oxygen. Need "+str(remainder))
+            self._add_log(LOG_TYPE_INVENTORY,LOG_LEVEL_HIGH,"Not enough oxygen. Need "+str(remainder))
             #TODO start using oxygen tank items to survive
 
     # =================== INVENTORY SYSTEM ================================
@@ -218,10 +220,10 @@ class Ship:
         no_waste = True
         for k_item,v_item in item_amount_array.items():
             if v_item>0:
-                self._add_log(1,"Produced Waste - Couldn't Store: "+str(v_item)+" "+str(k_item))
+                self._add_log(LOG_TYPE_INVENTORY,LOG_LEVEL_HIGH,"Produced Waste - Couldn't Store: "+str(v_item)+" "+str(k_item))
                 no_waste = False
             else:
-                self._add_log(1,"Added "+str(init_amounts[k_item])+" "+str(k_item))
+                self._add_log(LOG_TYPE_INVENTORY,LOG_LEVEL_LOW,"Added "+str(init_amounts[k_item])+" "+str(k_item))
 
         return (no_waste,item_amount_array)
 
@@ -254,11 +256,11 @@ class Ship:
         is_success = True
         for k_item,v_item in item_amount_array.items():
             if v_item>0:
-                self._add_log(1,"wtf: "+str(v_item)+" "+str(k_item))
+                self._add_log(LOG_TYPE_INVENTORY,LOG_LEVEL_HIGH,"wtf: "+str(v_item)+" "+str(k_item))
                 #TODO - should there be a message or will we let client caller handle response?
                 is_success = False
             else:
-                self._add_log(1,"Removed: "+str(init_amounts[k_item])+" "+str(k_item))
+                self._add_log(LOG_TYPE_INVENTORY,LOG_LEVEL_HIGH,"Removed: "+str(init_amounts[k_item])+" "+str(k_item))
         return (is_success,item_amount_array)
 
     def get_unmet_criteria(self,item_array_input):
@@ -372,12 +374,14 @@ class Ship:
     # ============== LOGGING SYSTEM ===============
     # TODO - differnet types for topics (farming,housing,inventory,population,etc.)
 
-    def _add_log(self,level,message,archive=False):
+    def _add_log(self,log_type,level,message,archive=False):
 
         if not archive:
-            if level not in self.daily_logs:
-                self.daily_logs[level] = []
-            self.daily_logs[level].append(message)
+            if log_type not in self.daily_logs:
+                self.daily_logs[log_type] = {}
+            if level not in self.daily_logs[log_type]:
+                self.daily_logs[log_type][level] = []
+            self.daily_logs[log_type][level].append(message)
         else:
            outFile = open('Archived Log.txt', 'a+')
            outFile.write(message)
@@ -404,8 +408,8 @@ class Ship:
                             unemployed.remove(human)
                             break
 
-        self._add_log(2,str(len(unemployed))+" civilians could not find work.")
-        self._add_log(2,"Unfilled jobs: "+str(self.get_available_jobs_simple()))
+        self._add_log(LOG_TYPE_ROOMS,LOG_LEVEL_HIGH,str(len(unemployed))+" civilians could not find work.")
+        self._add_log(LOG_TYPE_ROOMS,LOG_LEVEL_HIGH,"Unfilled jobs: "+str(self.get_available_jobs_simple()))
         
 
     #TODO maybe job db like in items for same jobs / mult rooms
@@ -483,7 +487,7 @@ class Ship:
                         break
                     continue
 
-        self._add_log(3,str(len(homeless)-count_found_home)+" civilians could not find a home.")
+        self._add_log(LOG_TYPE_HUMANS,LOG_LEVEL_HIGH,str(len(homeless)-count_found_home)+" civilians could not find a home.")
 
     def find_homes_for_hospitalized(self):
         hospitalized = []
@@ -514,8 +518,8 @@ class Ship:
                         break
                     continue
 
-        self._add_log(6,str(count_found_home)+" civlians were hospitalized.")
-        self._add_log(6,str(len(hospitalized)-count_found_home)+" civlians could not be hospitalized.")
+        self._add_log(LOG_TYPE_HUMANS,LOG_LEVEL_HIGH,str(count_found_home)+" civlians were hospitalized.")
+        self._add_log(LOG_TYPE_HUMANS,LOG_LEVEL_HIGH,str(len(hospitalized)-count_found_home)+" civlians could not be hospitalized.")
 
     def find_prison_for_prisoners(self):
 	imprisoned = []
@@ -546,8 +550,8 @@ class Ship:
                         break
                     continue
 
-        self._add_log(6,str(count_found_prison)+" wanted criminals were imprisoned.")
-        self._add_log(6,str(len(imprisoned)-count_found_prison)+" wanted criminals could not be imprisoned.")
+        self._add_log(LOG_TYPE_HUMANS,LOG_LEVEL_HIGH,str(count_found_prison)+" wanted criminals were imprisoned.")
+        self._add_log(LOG_TYPE_HUMANS,LOG_LEVEL_HIGH,str(len(imprisoned)-count_found_prison)+" wanted criminals could not be imprisoned.")
 		
     # =============== HUMAN MGMT ============================
     
@@ -562,6 +566,17 @@ class Ship:
 
         if is_death:
             self.add_items({"corpse":1})
+
+    # ============== GENERAL ================================
+
+    def get_overview(self):
+        items = ['oxygen','water','fuel','protein','grain','fruit+veg']
+        overview = {}
+
+        for item in items:
+            overview[item] = self.get_total_items(item)
+
+        return overview
 
     # =============== PRINT DEBUGGING =======================
 

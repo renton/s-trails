@@ -2,7 +2,7 @@ from gui.widgets.base_widget import *
 
 class List(BaseWidget):
 
-    LIST_ENTRY_HEIGHT = 30
+    LIST_ENTRY_HEIGHT = 24
     LIST_ENTRY_PADDING = 10
     LIST_ENTRY_MARGIN = 8
 
@@ -25,7 +25,7 @@ class List(BaseWidget):
                                         callbacks={
                                             "clicked":entry['clicked']
                                         },
-                                        text=entry['name'])
+                                        text=str(entry['name']).upper())
             new_list_entry.border_width = 0
             self.sub_widgets.append(new_list_entry)
             y_pos += List.LIST_ENTRY_MARGIN + List.LIST_ENTRY_HEIGHT

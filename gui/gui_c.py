@@ -5,12 +5,12 @@ from gui.templates.base_template import *
 
 class Gui():
 
-    WINDOW_SIZE_X = 800
-    WINDOW_SIZE_Y = 600
+    WINDOW_SIZE_X = 1366
+    WINDOW_SIZE_Y = 768
     WINDOW_BACKGROUND_COLOR = (0,0,0)
     WIDGET_BACKGROUND_COLOR = (255,0,0)
     FONT_COLOR = (255,255,255)
-    FONT_SIZE = 8
+    FONT_SIZE = 10
 
     def __init__(self):
 
@@ -81,3 +81,8 @@ class Gui():
                             widget.fire_callback("clicked")
                             self.update()
                         del rect
+
+                if event.type == KEYDOWN:
+                    if event.key == K_ESCAPE:
+                        pygame.quit()
+                        sys.exit()

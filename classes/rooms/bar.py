@@ -73,7 +73,7 @@ class Room_Bar(ShipRoom):
             unmet_criteria = self.ship.get_unmet_criteria(Room_Bar.INIT_DEFAULT_SERVICE_REQUIREMENTS)
 
             if unmet_criteria:
-                self.ship._add_log(2,"Bar cannot open. Requirments not met: "+str(unmet_criteria))
+                self.ship._add_log(Ship.LOG_TYPE_ROOMS,Ship.LOG_LEVEL_HIGH,"Bar cannot open. Requirments not met: "+str(unmet_criteria))
                 return False
             else:
                 self.ship.remove_items(Room_Bar.INIT_DEFAULT_SERVICE_REQUIREMENTS)

@@ -84,17 +84,17 @@ class Room_Farm(ShipRoom):
         #TODO - items dont remove or have a % of removing
 
         if not self.has_manager():
-            self.ship._add_log(2,str(self.name)+" needs manager to process farm.")
+            self.ship._add_log(Ship.LOG_TYPE_ROOMS,Ship.LOG_LEVEL_HIGH,str(self.name)+" needs manager to process farm.")
             return False
 
         if len(self.get_all_employees()) < Room_Farm.INIT_MIN_NUM_EMPLOYEES:
-            self.ship._add_log(2,str(self.name)+" needs at least "+str(Room_Farm.INIT_MIN_NUM_EMPLOYEES)+" employees to process farm.")
+            self.ship._add_log(Ship.LOG_TYPE_ROOMS,Ship.LOG_LEVEL_HIGH,str(self.name)+" needs at least "+str(Room_Farm.INIT_MIN_NUM_EMPLOYEES)+" employees to process farm.")
             return False
 
         unmet_criteria = self.ship.get_unmet_criteria(Room_Farm.INIT_DEFAULT_PLANT_REQ_ITEMS)
 
         if unmet_criteria:
-            self.ship._add_log(2,"Cannot process farm. Requirments not met: "+str(unmet_criteria))
+            self.ship._add_log(Ship.LOG_TYPE_ROOMS,Ship.LOG_LEVEL_HIGH,"Cannot process farm. Requirments not met: "+str(unmet_criteria))
             return False
         else:
             self.ship.remove_items(Room_Farm.INIT_DEFAULT_PLANT_REQ_ITEMS)
@@ -115,7 +115,7 @@ class Room_Farm(ShipRoom):
                 unmet_criteria = self.ship.get_unmet_criteria(Room_Farm.INIT_DEFAULT_STEP_REQ_ITEMS)
 
                 if unmet_criteria:
-                    self.ship._add_log(2,"Cannot grow farm. Requirments not met: "+str(unmet_criteria))
+                    self.ship._add_log(Ship.LOG_TYPE_ROOMS,Ship.LOG_LEVEL_HIGH,"Cannot grow farm. Requirments not met: "+str(unmet_criteria))
                     self._dec_yield()
                     return False
                 else:
@@ -127,11 +127,11 @@ class Room_Farm(ShipRoom):
     def _harvest(self):
 
         if not self.has_manager():
-            self.ship._add_log(2,str(self.name)+" needs manager to harvest farm.")
+            self.ship._add_log(Ship.LOG_TYPE_ROOMS,Ship.LOG_LEVEL_HIGH,str(self.name)+" needs manager to harvest farm.")
             return False
 
         if len(self.get_all_employees()) < Room_Farm.INIT_MIN_NUM_EMPLOYEES:
-            self.ship._add_log(2,str(self.name)+" needs at least "+str(Room_Farm.INIT_MIN_NUM_EMPLOYEES)+" employees to harvest farm.")
+            self.ship._add_log(Ship.LOG_TYPE_ROOMS,Ship.LOG_LEVEL_HIGH,str(self.name)+" needs at least "+str(Room_Farm.INIT_MIN_NUM_EMPLOYEES)+" employees to harvest farm.")
             return False
 
         # % chance at affecting yield
@@ -140,11 +140,11 @@ class Room_Farm(ShipRoom):
         unmet_criteria = self.ship.get_unmet_criteria(Room_Farm.INIT_DEFAULT_HARVEST_REQ_ITEMS) 
 
         if unmet_criteria:
-            self.ship._add_log(2,"Cannot harvest. Requirements not met: "+str(unmet_criteria))
+            self.ship._add_log(Ship.LOG_TYPE_ROOMS,Ship.LOG_LEVEL_HIGH,"Cannot harvest. Requirements not met: "+str(unmet_criteria))
             return False
         else:
             self.ship.remove_items(Room_Farm.INIT_DEFAULT_HARVEST_REQ_ITEMS)
-            self.ship._add_log(1,"harvest time")
+            self.ship._add_log(Ship.LOG_TYPE_ROOMS,Ship.LOG_LEVEL_LOW,"harvest time")
             self.ship.add_items({self.item_type:self.yield_amount})
             self.ready_to_plant = True
 
