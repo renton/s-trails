@@ -54,7 +54,8 @@ class NameReader:
 
     def clean_files(self):
         for k,v in self.files.items():
-           fileList= v['names']
+           fileList= set(v['names'])
+           fileList = list(fileList)
            fileList.sort()
            outFile = v['file']
            outFile.seek(0,0)

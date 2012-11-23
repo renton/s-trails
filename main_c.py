@@ -33,6 +33,11 @@ class TestGui():
 
             },
             {
+                "name":"DIPLOMACY",
+                "clicked":lambda:self.load_table(self.main_menu,self.get_factions)
+
+            },
+            {
                 "name":"STEP",
                 "clicked":self.step_day,
 
@@ -227,6 +232,16 @@ class TestGui():
             data['data'].append([k,v])
         return data
 
+    def get_factions(self):
+        data = {}
+        data['title'] = "FACTIONS"
+        data['header'] = ['name','type','power']
+        data['data'] = []
+
+        for v in self.sim.factions:
+            data['data'].append([v['name'],v['type'],v['power']])
+        return data
+
     def step_day(self):
         self.sim.step_day()
         self.load_home(self.main_menu)
@@ -240,6 +255,7 @@ class TestGui():
            overview.append({"name":str(k)+": "+str(v[0])+" "+str(v[2]),"clicked":None})
         overview.append({"name":"POPULATION: "+str(len(self.sim.ship.humans)),"clicked":None})
         return overview
+
 
 t = TestGui()
 t.main_loop()
