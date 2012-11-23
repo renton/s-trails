@@ -15,7 +15,7 @@ class Gui():
     def __init__(self):
 
         pygame.init()
-        self.screen = pygame.display.set_mode((Gui.WINDOW_SIZE_X, Gui.WINDOW_SIZE_Y), 0, 32)
+        self.screen = pygame.display.set_mode((Gui.WINDOW_SIZE_X, Gui.WINDOW_SIZE_Y), pygame.FULLSCREEN, 32)
         pygame.display.set_caption('Hello world!')
 
         # set up fonts
