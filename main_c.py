@@ -138,7 +138,7 @@ class TestGui():
 
         self.gui = gui_c.Gui()
         self.sim = Sim()
-        self.load_home(self.main_menu)
+        self.load_event_popup(lambda: self.load_home(self.main_menu),"oh hi! welcome to an adventure.")
 
     def main_loop(self):
         self.gui.main_loop()
@@ -146,8 +146,14 @@ class TestGui():
     ###################################################################################
 
     def load_home(self,menu):
-        home = HomeLocation(menu,self.get_overview(),self.get_locations())
-        self.gui.load_template(home)
+
+        print len(self.sim.cur_events)
+        if len(self.sim.cur_events) > 0:
+            event = self.sim.cur_events.pop()
+            self.load_event_popup(lambda: self.load_home(self.main_menu),event.text)
+        else:
+            home = HomeLocation(menu,self.get_overview(),self.get_locations())
+            self.gui.load_template(home)
 
     def load_loading(self):
         pass
@@ -160,17 +166,23 @@ class TestGui():
         self.gui.load_template(home)
 
     def load_station_location(self,menu,location):
-        station = HomeStationLocation(menu,self.get_overview(),self.get_station_location(location))
-        self.gui.load_template(station)
+        #% random event (hostile, welcome, quest etc.)
+        if randint(0,10) == 11:
+            location_callback = self.get_station_location_lambda(location)
+            self.load_event_popup(location_callback,"")
+        else:
+            station = HomeStationLocation(menu,self.get_overview(),self.get_station_location(location))
+            self.gui.load_template(station)
 
     #next could be useful to string multiple popups
-    def load_event_popup(self,next=None):
+    def load_event_popup(self,next=None,text=""):
 
         t = EventPopupTemplate(
                                 {
                                     "clicked":next,
                                 },
-                                image=(randint(0,255),randint(-1,255),randint(0,255)))
+                                image=(randint(0,255),randint(-1,255),randint(0,255)),
+                                text=text)
 
         self.gui.load_template(t)
 

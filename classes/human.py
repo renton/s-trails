@@ -213,3 +213,26 @@ class Human:
             if self.stats[k] < v:
                 return False
         return True
+
+    #TODO - suffering affects old and young more
+
+    def suffer_thirst(self):
+        self.hp -= randint(10,30)
+
+    def suffer_hunger(self):
+        self.ship._add_log(LOG_TYPE_HUMANS,LOG_LEVEL_MED,str(self.first_name)+" "+str(self.last_name)+" hunger")
+        self.hp -= randint(0,5)
+
+    def suffer_protein_loss(self):
+        if randint(0,25) == 0:
+            self.dec_stat('agi',1)
+
+    def suffer_vitamin_loss(self):
+        if randint(0,30) == 0:
+            self.dec_stat('imm',1)
+
+    def eat_balanced_diet(self):
+        pass
+
+    def suffocate(self):
+        self.hp -= randint(0,100)

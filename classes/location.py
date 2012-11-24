@@ -53,7 +53,7 @@ class SocialLocation(Location):
         #prisoners
         #miner - trade mineral types
 
-        self.population = randint(SocialLocation.MIN_POPULATION_SIZE,self.faction.power*SocialLocation.POPULATION_MULTIPLIER)
+        self.population = randint(SocialLocation.MIN_POPULATION_SIZE,SocialLocation.MIN_POPULATION_SIZE+(self.faction.power*SocialLocation.POPULATION_MULTIPLIER))
         self.air_hanger = {}
         self.external_components = {} #ground to air missiles etc. (components have type/quality/struct hp, plus methods to use)
         self.trade_swindle_factor = randint(0,30) #deviation from base prices of items, pirate type higher

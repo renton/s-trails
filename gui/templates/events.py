@@ -6,5 +6,5 @@ class EventPopupTemplate(BaseTemplate):
         self.name = "event"
         self.text = text
         widget1 = BaseWidget(500,500,200,50,callbacks=pass_event_callback)
-        widget2 = BaseWidget(200,40,400,300)
+        widget2 = BaseWidget(200,40,400,300,text=str(self.text).upper(),t_padding_left=50,t_padding_top=50)
         self.widgets = [widget1,widget2]

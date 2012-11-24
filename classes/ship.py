@@ -69,12 +69,12 @@ class Ship:
     }
 
     INIT_ITEMS = {
-        "water":30230,
+        "water":3,
         "fuel":12233,
         "oxygen":93820,
-        "grain":20000,
-        "protein":10000,
-        "fruit+veg":20000,
+        "grain":2000,
+        "protein":1000,
+        "fruit+veg":2000,
         "farming supplies":1000,
         "farming tools":100,
         "growth cells":1000,
@@ -135,7 +135,9 @@ class Ship:
         self._daily_feed_humans()
         self._daily_use_fuel()
 
+        print "---"
         # step humans
+        print len(self.humans)
         for k,v in self.humans.items():
             if not v.daily_step(day):
                 #passed away
@@ -175,10 +177,37 @@ class Ship:
             'fruit+veg':daily_required['fruit+veg'],
         }
 
+        print resources
+
         (status,remainder) = self.remove_items(resources)
 
-        if status == False:
-            self._add_log(LOG_TYPE_INVENTORY,LOG_LEVEL_HIGH,"Not enough foods")
+        if remainder['protein'] == 0 and remainder['water'] == 0 and remainder['fruit+veg'] == 0 and remainder['grain'] == 0:
+            for k,v in self.humans.items():
+                v.eat_balanced_diet()
+
+        # suffer thirst - hp loss
+        if remainder['water'] > 0:
+            self._add_log(LOG_TYPE_INVENTORY,LOG_LEVEL_HIGH,"No water: The colony is suffering from major thirst.")
+            for k,v in self.humans.items():
+                v.suffer_thirst()
+
+        # suffer imm loss
+        if remainder['fruit+veg'] > 0:
+            self._add_log(LOG_TYPE_INVENTORY,LOG_LEVEL_HIGH,"The colony is suffering from vitamin deficiency")
+            for k,v in self.humans.items():
+                v.suffer_vitamin_loss()
+
+        # suffer agi loss
+        if remainder['protein'] > 0:
+            self._add_log(LOG_TYPE_INVENTORY,LOG_LEVEL_HIGH,"The colony is suffering from protein deficiency")
+            for k,v in self.humans.items():
+                v.suffer_protein_loss()
+
+        # suffer hunger - hp loss
+        if (remainder['protein'] > 0 and remainder['grain'] > 0 and remainder['fruit+veg'] > 0):
+            self._add_log(LOG_TYPE_INVENTORY,LOG_LEVEL_HIGH,"No food: The colony is suffering from major starvation.")
+            for k,v in self.humans.items():
+                v.suffer_hunger()
 
     def _daily_use_fuel(self):
         #TODO - based on current settings and upgrades
@@ -194,8 +223,9 @@ class Ship:
         (status,remainder) = self.remove_items({"oxygen":amount})
 
         if status == False:
-            self._add_log(LOG_TYPE_INVENTORY,LOG_LEVEL_HIGH,"Not enough oxygen. Need "+str(remainder))
-            #TODO start using oxygen tank items to survive
+            for k,v in self.humans.items():
+                v.suffocate()
+            self._add_log(LOG_TYPE_INVENTORY,LOG_LEVEL_HIGH,"No oxygen: The colony is suffocating.")
 
     # =================== INVENTORY SYSTEM ================================
 
@@ -264,11 +294,11 @@ class Ship:
         is_success = True
         for k_item,v_item in item_amount_array.items():
             if v_item>0:
-                self._add_log(LOG_TYPE_INVENTORY,LOG_LEVEL_HIGH,"wtf: "+str(v_item)+" "+str(k_item))
+                #self._add_log(LOG_TYPE_INVENTORY,LOG_LEVEL_HIGH,"wtf: "+str(v_item)+" "+str(k_item))
                 #TODO - should there be a message or will we let client caller handle response?
                 is_success = False
             else:
-                self._add_log(LOG_TYPE_INVENTORY,LOG_LEVEL_HIGH,"Removed: "+str(init_amounts[k_item])+" "+str(k_item))
+                self._add_log(LOG_TYPE_INVENTORY,LOG_LEVEL_MED,"Removed: "+str(init_amounts[k_item])+" "+str(k_item))
         return (is_success,item_amount_array)
 
     def get_unmet_criteria(self,item_array_input):
@@ -309,7 +339,11 @@ class Ship:
                 containers = {}
 
         if 'core' in ITEM[item_type]:
-            estimate_days = total/self.get_resource_daily_required()[item_type]
+            daily_required = self.get_resource_daily_required()[item_type]
+            if daily_required > 0:
+                estimate_days = total/self.get_resource_daily_required()[item_type]
+            else:
+                estimate_days = 0
         else:
             estimate_days = None
 
@@ -369,12 +403,18 @@ class Ship:
         daily_required = {
 
             "fuel":(self.get_ship_weight()/10),
-            "water":(len(self.humans)),
+            "water":(len(self.humans)/10),
             "oxygen":(len(self.humans)*len(self.rooms)/20),
-            "grain":(len(self.humans)),
-            "protein":(len(self.humans)),
-            "fruit+veg":(len(self.humans)),
+            "grain":(len(self.humans)/10),
+            "protein":(len(self.humans)/10),
+            "fruit+veg":(len(self.humans)/10),
         }
+
+        # always requires at least 1 of each type
+        if len(self.humans) >= 1:
+            for k,v in daily_required.items():
+                if v == 0:
+                    daily_required[k] = 1
 
         return daily_required
 
@@ -416,8 +456,11 @@ class Ship:
                             unemployed.remove(human)
                             break
 
-        self._add_log(LOG_TYPE_ROOMS,LOG_LEVEL_HIGH,str(len(unemployed))+" civilians could not find work.")
-        self._add_log(LOG_TYPE_ROOMS,LOG_LEVEL_HIGH,"Unfilled jobs: "+str(self.get_available_jobs_simple()))
+        if len(unemployed) > 0:
+            self._add_log(LOG_TYPE_ROOMS,LOG_LEVEL_HIGH,str(len(unemployed))+" civilians could not find work.")
+
+        if len(self.get_available_jobs_simple()) > 0:
+            self._add_log(LOG_TYPE_ROOMS,LOG_LEVEL_HIGH,"Unfilled jobs: "+str(self.get_available_jobs_simple()))
         
 
     #TODO maybe job db like in items for same jobs / mult rooms
@@ -482,7 +525,8 @@ class Ship:
                         break
                     continue
 
-        self._add_log(LOG_TYPE_HUMANS,LOG_LEVEL_HIGH,str(len(homeless)-count_found_home)+" civilians could not find a home.")
+        if len(homeless) > 0:
+            self._add_log(LOG_TYPE_HUMANS,LOG_LEVEL_HIGH,str(len(homeless)-count_found_home)+" civilians could not find a home.")
 
     def find_homes_for_hospitalized(self):
         hospitalized = []
@@ -513,8 +557,11 @@ class Ship:
                         break
                     continue
 
-        self._add_log(LOG_TYPE_HUMANS,LOG_LEVEL_HIGH,str(count_found_home)+" civlians were hospitalized.")
-        self._add_log(LOG_TYPE_HUMANS,LOG_LEVEL_HIGH,str(len(hospitalized)-count_found_home)+" civlians could not be hospitalized.")
+        if count_found_home > 0:
+            self._add_log(LOG_TYPE_HUMANS,LOG_LEVEL_HIGH,str(count_found_home)+" civlians were hospitalized.")
+
+        if (len(hospitalized)-count_found_home) > 0:
+            self._add_log(LOG_TYPE_HUMANS,LOG_LEVEL_HIGH,str(len(hospitalized)-count_found_home)+" civlians could not be hospitalized.")
 
     def find_prison_for_prisoners(self):
 	imprisoned = []
@@ -545,8 +592,11 @@ class Ship:
                         break
                     continue
 
-        self._add_log(LOG_TYPE_HUMANS,LOG_LEVEL_HIGH,str(count_found_prison)+" wanted criminals were imprisoned.")
-        self._add_log(LOG_TYPE_HUMANS,LOG_LEVEL_HIGH,str(len(imprisoned)-count_found_prison)+" wanted criminals could not be imprisoned.")
+        if count_found_prison > 0:
+            self._add_log(LOG_TYPE_HUMANS,LOG_LEVEL_HIGH,str(count_found_prison)+" wanted criminals were imprisoned.")
+
+        if (len(imprisoned)-count_found_prison) > 0:
+            self._add_log(LOG_TYPE_HUMANS,LOG_LEVEL_HIGH,str(len(imprisoned)-count_found_prison)+" wanted criminals could not be imprisoned.")
 		
     # =============== HUMAN MGMT ============================
     
