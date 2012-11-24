@@ -27,7 +27,7 @@ class Room_LivingQuarters(ShipLivableRoom):
             },
             "Handyman": {
                 "employees":{},
-                "max_employees":5,
+                "max_employees":2,
                 "desired_stats":[],
                 "min_stats":{
                     "int":10,
@@ -37,7 +37,7 @@ class Room_LivingQuarters(ShipLivableRoom):
             },
             "Custodian": {
                 "employees":{},
-                "max_employees":5,
+                "max_employees":2,
                 "desired_stats":[],
                 "min_stats":{
                     "eth":10,

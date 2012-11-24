@@ -20,6 +20,7 @@ class ShipRoom(ShipEntity):
         self.name = "A Room"
         self.jobs = {}
         self.manager_label = "ShipRoom Manager"
+        self.occupants = {}
 
     def get_available_jobs(self):
         output={}
@@ -90,7 +91,6 @@ class ShipLivableRoom(ShipRoom):
         self.type = "default_livable_room"
         self.capacity = ShipLivableRoom.DEFAULT_CAPACITY
         self.cleanliness = 100
-        self.occupants = {}
 
     def is_vacant(self):
         return len(self.occupants) < self.capacity

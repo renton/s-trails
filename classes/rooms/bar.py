@@ -1,6 +1,9 @@
 from classes.ship_entity import *
 from random import randint
 
+
+#TODO barfight event where random ppl vs security in str+agi
+
 class Room_Bar(ShipRoom):
 
     INIT_DEFAULT_ITEM = 'alcohol' #Well being? people with higher 'cha' get bigger affect (more social)
@@ -39,7 +42,7 @@ class Room_Bar(ShipRoom):
             },
             "Bartender": {
                 "employees":{},
-                "max_employees":4,
+                "max_employees":3,
                 "desired_stats":["cha","agi"],
                 "min_stats":{
                     "cha":20,
@@ -49,11 +52,11 @@ class Room_Bar(ShipRoom):
             },
             "Security": {
                 "employees":{},
-                "max_employees":2,
+                "max_employees":1,
                 "desired_stats":["str","agi"],
                 "min_stats":{
-                    "str":20,
-                    "agi":10,
+                    "str":50,
+                    "agi":50,
                 },
                 "req_awards":[]
             },
@@ -73,7 +76,7 @@ class Room_Bar(ShipRoom):
             unmet_criteria = self.ship.get_unmet_criteria(Room_Bar.INIT_DEFAULT_SERVICE_REQUIREMENTS)
 
             if unmet_criteria:
-                self.ship._add_log(Ship.LOG_TYPE_ROOMS,Ship.LOG_LEVEL_HIGH,"Bar cannot open. Requirments not met: "+str(unmet_criteria))
+                self.ship._add_log(LOG_TYPE_ROOMS,LOG_LEVEL_HIGH,"Bar cannot open. Requirments not met: "+str(unmet_criteria))
                 return False
             else:
                 self.ship.remove_items(Room_Bar.INIT_DEFAULT_SERVICE_REQUIREMENTS)

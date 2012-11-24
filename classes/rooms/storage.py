@@ -29,7 +29,7 @@ class Room_Storage(ShipRoom):
             },
             "Manual Labourer": {
                 "employees":{},
-                "max_employees":10,
+                "max_employees":5,
                 "desired_stats":["str","agi"],
                 "min_stats":{
                     "str":10,
@@ -39,7 +39,7 @@ class Room_Storage(ShipRoom):
             },
             "Logistics Clerk": {
                 "employees":{},
-                "max_employees":5,
+                "max_employees":2,
                 "desired_stats":["int","str","agi"],
                 "min_stats":{
                     "int":10,

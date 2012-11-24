@@ -1,5 +1,9 @@
 from ship import *
 from name_reader import *
+from faction import *
+from location import *
+
+#TODO - settings file with constants
 
 class Sim:
 
@@ -7,6 +11,15 @@ class Sim:
     INIT_STARTING_DAY = 1
     INIT_DAYS_IN_YEAR = 365
     INIT_NUM_FACTIONS = 20
+    INIT_NUM_CURRENCIES = 3
+    INIT_DAYS_IN_DENSITY_ZONE = 20
+    DENSITY_DIVISION_ROLL_CONSTANT = 4
+
+    #TODO % and max in area
+    #LOCATION_TYPES = [PlanetLocation, FleetLocation, StationLocation]
+    LOCATION_TYPES = [StationLocation]
+    MAX_LOCATIONS = 6
+    MAX_FACTIONS_PER_SYSTEM = 3
 
     def __init__(self):
         self.name_reader = NameReader()
@@ -14,92 +27,62 @@ class Sim:
         self.year = Sim.INIT_STARTING_YEAR
         self.day = Sim.INIT_STARTING_DAY
         self.days_elapsed = 0
-
-        self.faction_types={
-            'colonist':[
-                'Colonists',
-                'Separatists',
-                'Fanatics',
-                'Exiled',
-                'Survivors',
-                'Pilgrims',
-                'Pioneers',
-                'Harvesters',
-                'Farmers',
-                'Travellers',
-                'Merchants',
-                'United',
-                'Congress',
-                'Cult',
-            ],
-            'miner':[
-                'Miners',
-                'Engineers',
-                'Guild',
-                'Masons',
-                'Crafters',
-                'Terraformers',
-                'Grease Monkeys',
-                'Union',
-                'Astrofarmers',
-            ],
-            'soldier':[
-                'Mercenaries',
-                'Soldiers',
-                'Crusade',
-                'Militants',
-                'Force',
-                'Marines',
-                'Rangers',
-                'Brigade',
-                'Templars',
-                'Grenadiers',
-                'Riflemen',
-                'Dragoons',
-                'Generals',
-                'Warriors',
-            ],
-            'scientist':[
-                'Students',
-                'Academics',
-                'Expedition',
-                'Researchers',
-                'Scientists',
-                'Voyagers',
-                'Explorers',
-                'Research Group',
-                'Sages',
-                'Seers',
-                'Prophets',
-                'Reading Club',
-                'Archivists',
-                'Futurologists',
-            ],
-            'pirate':[
-                'Bandits',
-                'Pirates',
-                'Looters',
-                'Pillagers',
-                'Raiders',
-                'Defilers',
-                'Warlords',
-                'Mauraders',
-                'Gang',
-            ],
-            'convict':[
-                'Convicts',
-                'Escapees',
-                'Lifers',
-                'Prisoners',
-                'Slaves',
-                'Survivors'
-            ],
-        }
-        
+        self.days_in_cur_density = 0
+        self._gen_new_density()
+        self.currencies = self._generate_random_currencies()
         self.factions = self._generate_random_factions()
+        self.cur_locations = []
+
+    def _gen_new_density(self):
+        self.days_in_cur_density = 0
+        self.cur_density = randint(10,100)
+        #self.cur_density = 100
+
+    #TODO use density
+    def _gen_locations(self):
+        self.cur_locations = []
+        self.system_factions = {}
+
+        #roll for empty locations or system with locations
+        if randint(0,100) <= (self.cur_density/Sim.DENSITY_DIVISION_ROLL_CONSTANT):
+
+            print self.cur_density
+
+            #TODO this logic isnt great... be cool for there to at least be prob. of more factions in low density area
+            num_faction_calc = (self.cur_density/(100/Sim.MAX_FACTIONS_PER_SYSTEM))
+            if num_faction_calc < 1:
+                num_faction_calc = 1
+
+            #num factions operating in this location TODO use this
+            num_factions = randint(1,num_faction_calc)
+
+            self.system_factions = {}
+            for i in range(num_factions):
+                faction = choice(self.factions.values())
+                self.system_factions[faction.id] = faction
+
+            print len(self.system_factions)
+
+            #generate x num locations based off current density
+            num_location_calc = (self.cur_density/(100/Sim.MAX_LOCATIONS))
+            if num_location_calc < 1:
+                num_location_calc = 1
+
+            for i in range(randint(1,num_location_calc)):
+                self.cur_locations.append(choice(Sim.LOCATION_TYPES)(self.system_factions.values()))
 
     def step_day(self):
+
         print "\n----------------- "+str(self.day)+" "+str(self.year)+" -------------------"
+
+        if self.days_in_cur_density >= Sim.INIT_DAYS_IN_DENSITY_ZONE:
+            self._gen_new_density()
+
+        #LOCATIONS
+        self._gen_locations()
+
+        print self.cur_locations
+        #EVENTS
         
         self.ship.daily_step(self.day)
 
@@ -109,75 +92,17 @@ class Sim:
         else:
             self.day += 1
         self.days_elapsed += 1
-
-    def main_loop(self):
-        while(1):
-            self.step_day()
-           
-            break
+        self.days_in_cur_density += 1
 
     def _generate_random_factions(self):
-
-        #promise,pact,star,hammer
-        #east,west,upper,lower,first,second
-        # the optional
-        # <noun> of the <adj> <group>
-        # <adj><noun> of the <noun>
-        # <adj> <noun> <group>
-        # <adj> <noun> of the <adj> <group>
-        # <adj> <group> <noun>
-        # <person>s <adj> <group>
-        # <adj> <person>s <group>
-        # <person>s <group>
-        # <title> <person>s <group>
-        # <noun> of the <adj> <noun>
-        # <> of the <> <>
-        factions=[]
-
+        factions={}
         for i in range(Sim.INIT_NUM_FACTIONS):
-            f_type = choice(self.faction_types.keys())
-            factions.append({
-                "name":self._generate_faction_name(f_type),
-                "power":randint(1,5),
-                "type":f_type})
+            new_faction = Faction(self.currencies,self.name_reader)
+            factions[new_faction.id] = new_faction
         return factions
 
-    def _generate_faction_name(self,f_type):
-
-        word = self.name_reader.get_random_name
-        group = choice(self.faction_types[f_type])
-        name = choice([
-                        word("m"),
-                        word("f"),
-                        word("l"),
-                        word("adjective")+" "+word("m"),
-                        word("adjective")+" "+word("f"),
-                        word("adjective")+" "+word("l"),
-                        word("m")+" the "+word("adjective"),
-                        word("f")+" the "+word("adjective"),
-                        word("title")+" "+word("l"),
-                        word("m")+" the "+word("animal"),
-                        word("f")+" the "+word("animal")])
-        patterns = [
-            word("noun")+" of the "+word("adjective")+" "+word("noun"),
-            word("noun")+" of the "+word("adjective")+" "+group,
-            name+"'s "+group,
-            name+"'s "+word("adjective")+" "+group,
-            name+"'s "+word("animal")+" "+group,
-            word("adjective")+" "+word("noun")+" "+group,
-            group+" of the "+word("noun"),
-            group+" of the "+word("adjective")+" "+word("noun"),
-            "The "+word("adjective")+" "+group,
-            "The "+word("adjective")+" "+word("noun")+" "+group,
-            "The "+word("adjective")+" "+word("animal")+"s",
-            word("adjective")+" "+word("noun")+" "+word("animal")+"s",
-            name+"'s "+word("animal")+"s",
-            name+"'s "+word("adjective")+" "+word("animal")+"s",
-            word("adjective")+" "+word("animal")+" "+group,
-            word("noun")+" of the "+word("adjective"),
-            "The "+word("animal")+" "+group,
-            group+" of "+name,
-            word("adjective")+" "+group+" of "+name
-        ]
-
-        return choice(patterns)
+    def _generate_random_currencies(self):
+        currencies=[]
+        for i in range(Sim.INIT_NUM_CURRENCIES):
+            currencies.append(str(randint(100,999)))
+        return currencies

@@ -11,6 +11,7 @@ from rooms.bar import *
 from rooms.distillery import *
 from rooms.hospital import *
 from rooms.prison import *
+from rooms.bridge import *
 
 from copy import deepcopy
 
@@ -18,41 +19,46 @@ from log_types import *
 
 class Ship:
 
-    INIT_POPULATION_SIZE = 3000
+    INIT_POPULATION_SIZE = 500
     INIT_NUM_INTERNAL_COMPONENTS = 0
     INIT_NUM_EXTERNAL_COMPONENTS = 0
 
     STARTING_JOB_AGE = 16
 
     INIT_ROOMS = [
+		{
+            "obj":Room_Bridge,
+            "num":1
+        },
         {
             "obj":Room_Storage,
-            "num":30
+            "num":5
         },
         {
             "obj":Room_LivingQuarters,
-            "num":20
+            "num":2
         },
         {
             "obj":Room_Farm,
-            "num":0
+            "num":1
         },
         {
             "obj":Room_Bar,
-            "num":0
+            "num":1
         },
         {
             "obj":Room_Distillery,
-            "num":0
+            "num":1
         },
         {
             "obj":Room_Hospital,
-            "num":5
+            "num":1
         },
-		 {
+		{
             "obj":Room_Prison,
-            "num":4
+            "num":1
         },
+
 
     ]
 
@@ -142,16 +148,16 @@ class Ship:
         self.find_homes_for_hospitalized()
         self.find_homes_for_homeless()
         self.find_jobs_for_unemployed()
-	self.find_prison_for_prisoners()
+        self.find_prison_for_prisoners()
 
         #self.print_stats_living_quarters()
         #self.print_stats_silos()
         #self.print_stats_stores()
-        self.print_overview_stats()
-        self.print_daily_logs()
+        #self.print_overview_stats()
+        #self.print_daily_logs()
         #self.print_inventory()
         #self.print_humans()
-        self.print_rooms()
+        #self.print_rooms()
 
         return self.is_game_over
 
@@ -427,10 +433,10 @@ class Ship:
 
     # ============= HOUSING SYSTEM  ===================
 
-    def get_all_living_quarters(self,only_vacant=False):
+    def get_all_livable_rooms(self,only_vacant=False,room_type=False):
         lq = {}
         for k,v in self.rooms.items():
-            if v.type == "living_quarters":
+            if room_type == False or v.type == room_type:
                 if only_vacant:
                     if v.is_vacant:
                         lq[v.id] = v
@@ -438,27 +444,14 @@ class Ship:
                     lq[v.id] = v
         return lq
 
+    def get_all_living_quarters(self,only_vacant=False):
+        return self.get_all_livable_rooms(room_type="living_quarters")
+
     def get_all_hospitals(self,only_vacant=False):
-        lq = {}
-        for k,v in self.rooms.items():
-            if v.type == "hospital":
-                if only_vacant:
-                    if v.is_vacant:
-                        lq[v.id] = v
-                else:
-                    lq[v.id] = v
-        return lq
+        return self.get_all_livable_rooms(room_type="hospital")
 		
     def get_all_prisons(self,only_vacant=False):
-        lq = {}
-        for k,v in self.rooms.items():
-            if v.type == "prison":
-                if only_vacant:
-                    if v.is_vacant:
-                        lq[v.id] = v
-                else:
-                    lq[v.id] = v
-        return lq
+        return self.get_all_livable_rooms(room_type="prison")
 
     def find_homes_for_homeless(self):
         homeless = []

@@ -34,11 +34,11 @@ class Room_Distillery(ShipRoom):
         self.ready_to_brew = True
         self.yield_amount = Room_Distillery.INIT_AVG_YIELD_AMOUNT
 
-        self.manager_label = "Distillery Manager"
+        self.manager_label = "Brewmaster"
         #TODO - if human stats change, make sure still capable of job - in human loop?
         self.jobs = {
             
-            "Distillery Manager": {
+            "Brewmaster": {
                 "employees":{},
                 "max_employees":1,
                 "desired_stats":["str","eth","agi","int","cha"],
@@ -51,9 +51,9 @@ class Room_Distillery(ShipRoom):
                 },
                 "req_awards":[]
             },
-            "Distillery Labourer": {
+            "Brewer": {
                 "employees":{},
-                "max_employees":15,
+                "max_employees":4,
                 "desired_stats":["str","agi"],
                 "min_stats":{
                     "str":10,
@@ -71,17 +71,17 @@ class Room_Distillery(ShipRoom):
         #TODO - items dont remove or have a % of removing
 
         if not self.has_manager():
-            self.ship._add_log(Ship.LOG_TYPE_ROOMS,Ship.LOG_LEVEL_HIGH,str(self.name)+" needs manager to process distillery.")
+            self.ship._add_log(LOG_TYPE_ROOMS,LOG_LEVEL_HIGH,str(self.name)+" needs manager to process distillery.")
             return False
 
         unmet_criteria = self.ship.get_unmet_criteria(Room_Distillery.INIT_DEFAULT_BREW_REQ_ITEMS)
 
         if unmet_criteria:
-            self.ship._add_log(2,"Cannot process distillery. Requirments not met: "+str(unmet_criteria))
+            self.ship._add_log(LOG_TYPE_ROOMS,LOG_LEVEL_HIGH,"Cannot process distillery. Requirments not met: "+str(unmet_criteria))
             return False
         else:
             self.ship.remove_items(Room_Distillery.INIT_DEFAULT_BREW_REQ_ITEMS)
-            self.ship._add_log(1,str(self.item_type)+" distillery set.")
+            self.ship._add_log(LOG_TYPE_ROOMS,LOG_LEVEL_LOW,str(self.item_type)+" distillery set.")
             self.days_till_brewed = self._calc_days_till_brewed()
             self.ready_to_plant = False
 
@@ -97,7 +97,7 @@ class Room_Distillery(ShipRoom):
                 unmet_criteria = self.ship.get_unmet_criteria(Room_Distillery.INIT_DEFAULT_STEP_REQ_ITEMS)
 
                 if unmet_criteria:
-                    self.ship._add_log(2,"Cannot brew at distillery. Requirments not met: "+str(unmet_criteria))
+                    self.ship._add_log(LOG_TYPE_ROOMS,LOG_LEVEL_HIGH,"Cannot brew at distillery. Requirments not met: "+str(unmet_criteria))
                     return False
                 else:
                     self.ship.remove_items(Room_Distillery.INIT_DEFAULT_STEP_REQ_ITEMS)

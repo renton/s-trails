@@ -34,12 +34,16 @@ class Table(BaseWidget):
         table_data = self.fire_callback("update")
         self.sub_widgets = []
 
-        table_data['data'].sort(key = lambda row: row[self.current_sort], reverse=self.sort_asc)
+        table_data['rows'].sort(key = lambda row: row['data'][self.current_sort], reverse=self.sort_asc)
 
-        self.pages = len(table_data['data'])/Table.INIT_ROWS_PER_PAGE
+        #TODO cant sort by callbacks - need to sort same way as above
+        if 'callbacks' in table_data:
+            table_data['callbacks'].sort(key = lambda row: row[self.current_sort], reverse=self.sort_asc)
+
+        self.pages = len(table_data['rows'])/Table.INIT_ROWS_PER_PAGE
         start_record = Table.INIT_ROWS_PER_PAGE * self.current_page
         end_record = start_record + Table.INIT_ROWS_PER_PAGE
-        table_data['data'] = table_data['data'][start_record:end_record]
+        table_data['rows'] = table_data['rows'][start_record:end_record]
 
         y_pos = self.top+self.border_width+Table.INIT_TABLE_PADDING
         x_pos = self.left+self.border_width+Table.INIT_TABLE_PADDING
@@ -79,9 +83,9 @@ class Table(BaseWidget):
         y_pos += Table.INIT_ROW_HEIGHT
 
         row_count = 0
-        for data in table_data['data']:
+        for data in table_data['rows']:
             col_count = 0
-            for record in data:
+            for record in data['data']:
 
                 cell_width = ((self.width-(self.border_width*2)-(Table.INIT_TABLE_PADDING*2))*table_data['width'][col_count])/100
                 if row_count % 2:
@@ -89,6 +93,10 @@ class Table(BaseWidget):
                 else:
                     row_bg_color = Table.INIT_ALT_ROW_BACKGROUND_COLOR
 
+                if 'callbacks' in data:
+                    callbacks = data['callbacks'][col_count]
+                else:
+                    callbacks = None
 
                 self.sub_widgets.append(BaseWidget(
                                                     x_pos,
@@ -97,6 +105,7 @@ class Table(BaseWidget):
                                                     Table.INIT_ROW_HEIGHT,
                                                     text=str(record).upper(),
                                                     border=0,
+                                                    callbacks=callbacks,
                                                     bg_color=row_bg_color,
                                                     t_padding_top=Table.INIT_CELL_TOP_PADDING,
                                                     t_padding_left=Table.INIT_CELL_LEFT_PADDING))
